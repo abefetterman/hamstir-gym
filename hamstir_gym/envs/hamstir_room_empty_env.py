@@ -9,9 +9,9 @@ from hamstir_gym.utils import *
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=True, step_ratio=120, discrete=False):
+    def __init__(self, render=False, step_ratio=120, discrete=False):
         
-        self.camera_height, self.camera_width = 240, 240
+        self.camera_height, self.camera_width = 80, 80
         
         if discrete:
             self.action_space = spaces.Discrete(5)

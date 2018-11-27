@@ -9,4 +9,4 @@ def env_fn():
     
 env = DummyVecEnv([env_fn])
 
-ppo2.learn(network='cnn', env=env, total_timesteps=1000000)
+ppo2.learn(network='cnn_small', env=env, total_timesteps=1000000, log_interval = 1, save_interval = 10)
