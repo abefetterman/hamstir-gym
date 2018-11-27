@@ -72,6 +72,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
         self._p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
         
+        self.ep_len, self.ep_reward = 0, 0.0
+        
         return self._get_img()
         
         
@@ -95,15 +97,22 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         done = False
         reward = 0
-        if sum(wheel_speeds) > 0:
+        if all([s>0 for s in wheel_speeds]):
             # add travel distance only if moving forward
-            reward = travelDistance2
+            reward += 10 * np.sqrt(travelDistance2)
             
         if wallDistance < 0.01:
             done=True
             reward = -100
+        elif wallDistance < .1:
+            # penalty for being close to the wall
+            reward -= 1e3 * ((.1-wallDistance) ** 2)
+            # pass
+            
+        self.ep_len += 1
+        self.ep_reward += reward
 
-        return img_arr, reward, done, {}
+        return img_arr, reward, done, {'episode': { 'r': self.ep_reward, 'l': self.ep_len }}
         
     def _get_img(self):
         cameraView = get_camera_view(self.robot, self.camera_link_id)
