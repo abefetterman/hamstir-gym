@@ -1,6 +1,7 @@
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
+import numpy as np
 import pybullet
 from pybullet_utils import bullet_client
 from hamstir_gym.utils import *
@@ -8,13 +9,25 @@ from hamstir_gym.utils import *
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=True, step_ratio=10):
+    def __init__(self, render=True, step_ratio=120, discrete=False):
+        
+        self.camera_height, self.camera_width = 240, 240
+        
+        if discrete:
+            self.action_space = spaces.Discrete(5)
+            self.actions = [(0,0),(10,10),(-5,-5),(5,-5),(-5,5)]
+        else:
+            self.action_space = spaces.Box(-10,10,(2,),dtype=np.float32)
+            self.actions = None
+            
+        self.observation_space = spaces.Box(low=0, high=255, shape=(self.camera_height, self.camera_width, 4), dtype=np.uint8) # returns RGBA
+        
         self.physicsClientId = -1
         self.ownsPhysicsClient = False
         self.isRender = render
         self.room = None
         self.robot = None
-        self.step_ratio = step_ratio
+        self.step_ratio = step_ratio # render timesteps / step(); render tstep = 1/240 sec
         self.renderer = pybullet.ER_BULLET_HARDWARE_OPENGL
         self.maxForce = 10
         
@@ -55,24 +68,48 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         randomizeColors(self.room)
         
-        return
+        cubeStartPos = [0,2,.05]
+        cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
+        self._p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
+        
+        return self._get_img()
         
         
     def step(self, action):
-        for wheel, vel in zip(self.wheel_ids, action):
+        startPosition,_ = self._p.getBasePositionAndOrientation(self.robot)
+        
+        wheel_speeds = self.actions[action] if self.actions else action
+        for wheel, vel in zip(self.wheel_ids, wheel_speeds):
             # presumably targetVelocity is in radians/second, force is in N-m -- unverified
-            p.setJointMotorControl2(self.robot, wheel, p.VELOCITY_CONTROL, targetVelocity=vel, force=self.maxForce)
+            p.setJointMotorControl2(self.robot, wheel, pybullet.VELOCITY_CONTROL, targetVelocity=vel, force=self.maxForce)
 
         for _ in range(self.step_ratio):
             self._p.stepSimulation()
         
-        cameraView = get_camera_view(self.robot, self.camera_link_id)
-        img_arr = self._p.getCameraImage(240, 240, cameraView, self.cameraProjection, renderer=self.renderer)
-
-        return img_arr
+        img_arr = self._get_img()
         
-    def render(self, mode='human', close=False):
-        cameraView = get_camera_view(self.robot, self.camera_link_id)
-        img_arr = self._p.getCameraImage(240, 240, cameraView, self.cameraProjection, renderer=self.renderer)
+        endPosition,_ = self._p.getBasePositionAndOrientation(self.robot)
+        travelDistance2 = sum([(x-y)*(x-y) for x,y in zip(startPosition,endPosition)])
+        
+        wallDistance = getWallDistance(self.room, self.robot)
+        
+        done = False
+        reward = 0
+        if sum(wheel_speeds) > 0:
+            # add travel distance only if moving forward
+            reward = travelDistance2
+            
+        if wallDistance < 0.01:
+            done=True
+            reward = -100
 
-        return img_arr
+        return img_arr, reward, done, {}
+        
+    def _get_img(self):
+        cameraView = get_camera_view(self.robot, self.camera_link_id)
+        img_params = self._p.getCameraImage(self.camera_width, self.camera_height, cameraView, self.cameraProjection, renderer=self.renderer)
+        return img_params[2]
+
+    def render(self, mode='human', close=False):
+
+        return self._get_img()
