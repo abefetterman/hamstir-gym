@@ -5,13 +5,14 @@ import numpy as np
 import pybullet
 from pybullet_utils import bullet_client
 from hamstir_gym.utils import *
+from hamstir_gym.modder import Modder
 
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=False, step_ratio=120, discrete=False):
+    def __init__(self, render=True, step_ratio=120, discrete=False):
         
-        self.camera_height, self.camera_width = 80, 80
+        self.camera_height, self.camera_width = 80,80
         
         if discrete:
             self.action_space = spaces.Discrete(5)
@@ -45,7 +46,8 @@ class HamstirRoomEmptyEnv(gym.Env):
             self._p = bullet_client.BulletClient()
 
         self.physicsClientId = self._p._client
-        self._p.configureDebugVisualizer(pybullet.COV_ENABLE_GUI,0)
+        self._p.configureDebugVisualizer(pybullet.COV_ENABLE_GUI,1)
+        self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,1)
     
         self._p.setGravity(0,0,-10)
         
@@ -57,6 +59,9 @@ class HamstirRoomEmptyEnv(gym.Env):
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
         self.robot = self._p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
         
+        self.modder = Modder()
+        self.modder.load(self.room)
+        
         self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
         self.wheel_ids = [left_wheel_id, right_wheel_id]
         
@@ -66,7 +71,8 @@ class HamstirRoomEmptyEnv(gym.Env):
     def reset(self):
         self._resetClient()
         
-        randomizeColors(self.room)
+        # randomizeColors(self.room)
+        self.modder.randomize()
         
         cubeStartPos = [0,2,.05]
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])

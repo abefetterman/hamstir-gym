@@ -10,4 +10,5 @@ def env_fn():
 env = DummyVecEnv([env_fn])
 
 ppo2.learn(network='cnn_small', env=env, total_timesteps=int(1e7), \
-                log_interval = 1, save_interval = 10)
+                log_interval = 1, save_interval = 10) #, \
+                # load_path='./00240')

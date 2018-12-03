@@ -24,13 +24,16 @@
     </contact>
   </link>
   <material name="blue">
-    <color rgba="0 0 0.8 1"/>
+    <color rgba="1 1 1 1" />
+    <texture filename="./tex256.png"/>
   </material>
   <material name="black">
-    <color rgba="0 0 0 1"/>
+    <color rgba="1 1 1 1" />
+    <texture filename="./tex256.png"/>
   </material>
   <material name="white">
-    <color rgba="1 1 1 1"/>
+    <color rgba="1 1 1 1" />
+    <texture filename="./tex256.png"/>
   </material>
   <link name="north_link">
     <visual>

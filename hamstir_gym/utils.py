@@ -13,6 +13,19 @@ def randomizeColors(parent):
     p.changeVisualShape(parent,-1,rgbaColor=randomRGBA())
     for plane in range(num_planes):
         p.changeVisualShape(parent,plane,rgbaColor=randomRGBA())
+        
+def loadTextures(parent):
+    num_planes = p.getNumJoints(parent)
+    joints = [-1] + list(range(num_planes))
+    textures = []
+    for j in joints:
+        p.changeVisualShape(parent,j,rgbaColor=[1,1,1,1])
+        textures.append(p.loadTexture(DATA_DIR+"tex256.png"))
+        p.changeVisualShape(parent,j,textureUniqueId=textures[-1])
+    return textures
+    
+def randomizeTextures(textures):
+    return
 
 def getWallDistance(wall_obj,ref_obj, maxDistance = 1.0):
     closest = p.getClosestPoints(wall_obj,ref_obj,maxDistance)
