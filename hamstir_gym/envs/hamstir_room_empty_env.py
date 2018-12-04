@@ -10,9 +10,9 @@ from hamstir_gym.modder import Modder
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=True, step_ratio=120, discrete=False):
+    def __init__(self, render=False, step_ratio=120, discrete=False):
         
-        self.camera_height, self.camera_width = 80,80
+        self.camera_height, self.camera_width = 160,160
         
         if discrete:
             self.action_space = spaces.Discrete(5)
@@ -54,6 +54,13 @@ class HamstirRoomEmptyEnv(gym.Env):
         self._p.setAdditionalSearchPath(DATA_DIR)
         
         
+        room_path = "/room12x12.urdf" #np.random.choice(DATA_ROOMS)
+        self.room = self._p.loadURDF(DATA_DIR+room_path, useFixedBase=1)
+        self.modder = Modder()
+        self.modder.load(self.room) 
+        self.modder.show()
+        
+        
         cubeStartPos = [0,2,.05]
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
         self.robot = self._p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
@@ -68,15 +75,11 @@ class HamstirRoomEmptyEnv(gym.Env):
     def reset(self):
         self._resetClient()
         
-        if self.room:
-            self._p.removeBody(self.room)
+        # if self.room:
+        #     self._p.removeBody(self.room)
         
-        room_path = np.random.choice(DATA_ROOMS)
-        self.room = self._p.loadURDF(DATA_DIR+room_path, useFixedBase=1)
-        self.modder = Modder()
-        self.modder.load(self.room)
         self.modder.randomize()
-        self.modder.show()
+        
         
         cubeStartPos = [0,2,.05]
         cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi

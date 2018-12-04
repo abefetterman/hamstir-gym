@@ -17,4 +17,4 @@ env = DummyVecEnv([env_fn])
 
 ppo2.learn(network='cnn', env=env, total_timesteps=int(1e7), \
                 log_interval = 1, save_interval = 10) #, \
-                # load_path='./00240')
+                # load_path='./models/ppo2-cnn-80px-0060e.pt')
