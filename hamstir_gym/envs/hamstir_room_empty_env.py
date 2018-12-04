@@ -53,14 +53,11 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         self._p.setAdditionalSearchPath(DATA_DIR)
         
-        self.room = self._p.loadURDF(DATA_DIR+"/room.urdf", useFixedBase=1)
         
         cubeStartPos = [0,2,.05]
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
         self.robot = self._p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
         
-        self.modder = Modder()
-        self.modder.load(self.room)
         
         self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
         self.wheel_ids = [left_wheel_id, right_wheel_id]
@@ -71,11 +68,19 @@ class HamstirRoomEmptyEnv(gym.Env):
     def reset(self):
         self._resetClient()
         
-        # randomizeColors(self.room)
+        if self.room:
+            self._p.removeBody(self.room)
+        
+        room_path = np.random.choice(DATA_ROOMS)
+        self.room = self._p.loadURDF(DATA_DIR+room_path, useFixedBase=1)
+        self.modder = Modder()
+        self.modder.load(self.room)
         self.modder.randomize()
+        self.modder.show()
         
         cubeStartPos = [0,2,.05]
-        cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
+        cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi
+        cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,cubeStartAngle])
         self._p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
         
         self.ep_len, self.ep_reward = 0, 0.0

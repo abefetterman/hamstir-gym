@@ -4,6 +4,11 @@ import os.path as osp
 import numpy as np
 
 DATA_DIR = osp.join(osp.abspath(osp.dirname(__file__)),'data/')
+DATA_ROOMS = [
+    "/room6x6.urdf",
+    "/room2x12.urdf",
+    "/room12x12.urdf"
+]
 
 def getWallDistance(wall_obj,ref_obj, maxDistance = 1.0):
     closest = p.getClosestPoints(wall_obj,ref_obj,maxDistance)

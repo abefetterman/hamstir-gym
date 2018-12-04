@@ -17,6 +17,14 @@ class Modder:
             p.changeVisualShape(parent,j,rgbaColor=[1,1,1,1])
             self.textures.append(p.loadTexture(DATA_DIR+"tex256.png"))
             p.changeVisualShape(parent,j,textureUniqueId=self.textures[-1])
+            
+    def hide(self):
+        for j in self.joints:
+            p.changeVisualShape(self.parent,j,rgbaColor=[1,1,1,0])
+            
+    def show(self):
+        for j in self.joints:
+            p.changeVisualShape(self.parent,j,rgbaColor=[1,1,1,1])
     
     def randomRGB(self):
         return np.random.uniform(size=3)*256
