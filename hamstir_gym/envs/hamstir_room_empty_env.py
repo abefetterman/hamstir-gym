@@ -5,12 +5,12 @@ import numpy as np
 import pybullet
 from pybullet_utils import bullet_client
 from hamstir_gym.utils import *
-from hamstir_gym.modder import Modder
+from hamstir_gym.multiroom import MultiRoom
 
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=False, step_ratio=120, discrete=False):
+    def __init__(self, render=True, step_ratio=120, discrete=False):
         
         self.camera_height, self.camera_width = 160,160
         
@@ -54,14 +54,12 @@ class HamstirRoomEmptyEnv(gym.Env):
         self._p.setAdditionalSearchPath(DATA_DIR)
         
         
-        room_path = "/room12x12.urdf" #np.random.choice(DATA_ROOMS)
-        self.room = self._p.loadURDF(DATA_DIR+room_path, useFixedBase=1)
-        self.modder = Modder()
-        self.modder.load(self.room) 
-        self.modder.show()
+        self.multiroom = MultiRoom()
+        self.multiroom.load(self._p) 
         
+        # self.multiroom.reset_room()
         
-        cubeStartPos = [0,2,.05]
+        cubeStartPos = [0,2,.1]
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
         self.robot = self._p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
         
@@ -75,15 +73,11 @@ class HamstirRoomEmptyEnv(gym.Env):
     def reset(self):
         self._resetClient()
         
-        # if self.room:
-        #     self._p.removeBody(self.room)
-        
-        self.modder.randomize()
-        
+        self.multiroom.reset_room()
         
         cubeStartPos = [0,2,.05]
         cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi
-        cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,cubeStartAngle])
+        cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
         self._p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
         
         self.ep_len, self.ep_reward = 0, 0.0
@@ -107,7 +101,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         endPosition,_ = self._p.getBasePositionAndOrientation(self.robot)
         travelDistance2 = sum([(x-y)*(x-y) for x,y in zip(startPosition,endPosition)])
         
-        wallDistance = getWallDistance(self.room, self.robot)
+        wallDistance = getWallDistance(self.multiroom.active_room(), self.robot)
         
         done = False
         reward = 0
