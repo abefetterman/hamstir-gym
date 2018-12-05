@@ -10,7 +10,7 @@ from hamstir_gym.multiroom import MultiRoom
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=True, step_ratio=120, discrete=False):
+    def __init__(self, render=False, step_ratio=120, discrete=False):
         
         self.camera_height, self.camera_width = 160,160
         
@@ -75,9 +75,9 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         self.multiroom.reset_room()
         
-        cubeStartPos = [0,2,.05]
+        cubeStartPos = [0,2,.2]
         cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi
-        cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
+        cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,cubeStartAngle])
         self._p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
         
         self.ep_len, self.ep_reward = 0, 0.0
