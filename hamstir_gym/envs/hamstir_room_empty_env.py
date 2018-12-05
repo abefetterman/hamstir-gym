@@ -10,7 +10,7 @@ from hamstir_gym.multiroom import MultiRoom
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=False, step_ratio=120, discrete=False):
+    def __init__(self, render=True, step_ratio=120, discrete=False):
         
         self.camera_height, self.camera_width = 160,160
         
@@ -31,6 +31,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.step_ratio = step_ratio # render timesteps / step(); render tstep = 1/240 sec
         self.renderer = pybullet.ER_BULLET_HARDWARE_OPENGL
         self.maxForce = 10
+        self.maxSteps = 1000
         
         return
     
@@ -50,6 +51,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,1)
     
         self._p.setGravity(0,0,-10)
+        self._p.setPhysicsEngineParameter(fixedTimeStep=0.02)
         
         self._p.setAdditionalSearchPath(DATA_DIR)
         
@@ -119,6 +121,8 @@ class HamstirRoomEmptyEnv(gym.Env):
             
         self.ep_len += 1
         self.ep_reward += reward
+        if self.ep_len > self.maxSteps:
+            done = True
 
         return img_arr, reward, done, {'episode': { 'r': self.ep_reward, 'l': self.ep_len }}
         

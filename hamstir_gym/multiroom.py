@@ -22,7 +22,16 @@ class MultiRoom:
             modder.load(room)
             modder.hide()
             self.modders.append(modder)
+        
         self.active = None
+        
+        # i = 0
+        # self.active = i
+        # startPos = [0,0,0]
+        # startOrientation = p.getQuaternionFromEuler([0,0,0])
+        # self._p.resetBasePositionAndOrientation(self.rooms[i], startPos, startOrientation)
+        # self.modders[i].randomize()
+        # self.modders[i].show()
         
         
     def reset_room(self):
@@ -40,6 +49,8 @@ class MultiRoom:
         self.modders[i].randomize()
         self.modders[i].show()
         self.active = i
+        
+        # self.modders[0].randomize()
         
     def active_room(self):
         return self.rooms[self.active]
