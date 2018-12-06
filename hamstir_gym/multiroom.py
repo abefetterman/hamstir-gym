@@ -23,34 +23,34 @@ class MultiRoom:
             modder.hide()
             self.modders.append(modder)
         
-        self.active = None
+        # self.active = None
         
-        # i = 0
-        # self.active = i
-        # startPos = [0,0,0]
-        # startOrientation = p.getQuaternionFromEuler([0,0,0])
-        # self._p.resetBasePositionAndOrientation(self.rooms[i], startPos, startOrientation)
-        # self.modders[i].randomize()
-        # self.modders[i].show()
-        
-        
-    def reset_room(self):
-        if self.active:
-            i = self.active
-            startPos = [0,0,-5]
-            startOrientation = p.getQuaternionFromEuler([0,0,0])
-            self._p.resetBasePositionAndOrientation(self.rooms[i], startPos, startOrientation)
-            self.modders[i].hide()
-        
-        i = np.random.randint(self.n_rooms)
+        i = 0
+        self.active = i
         startPos = [0,0,0]
         startOrientation = p.getQuaternionFromEuler([0,0,0])
         self._p.resetBasePositionAndOrientation(self.rooms[i], startPos, startOrientation)
         self.modders[i].randomize()
         self.modders[i].show()
-        self.active = i
         
-        # self.modders[0].randomize()
+        
+    def reset_room(self):
+        # if self.active:
+        #     for i in range(self.n_rooms):
+        #         startPos = [0,0,-5]
+        #         startOrientation = p.getQuaternionFromEuler([0,0,0])
+        #         self._p.resetBasePositionAndOrientation(self.rooms[i], startPos, startOrientation)
+        #         self.modders[i].hide()
+        # 
+        # i = np.random.randint(self.n_rooms)
+        # startPos = [0,0,0]
+        # startOrientation = p.getQuaternionFromEuler([0,0,0])
+        # self._p.resetBasePositionAndOrientation(self.rooms[i], startPos, startOrientation)
+        # self.modders[i].randomize()
+        # self.modders[i].show()
+        # self.active = i
+        
+        self.modders[0].randomize()
         
     def active_room(self):
         return self.rooms[self.active]
