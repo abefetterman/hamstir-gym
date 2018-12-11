@@ -15,8 +15,10 @@ class Modder:
         self.textures = []
         for j in self.joints:
             p.changeVisualShape(parent,j,rgbaColor=[1,1,1,1])
-            self.textures.append(p.loadTexture(DATA_DIR+"tex256.png"))
-            p.changeVisualShape(parent,j,textureUniqueId=self.textures[-1])
+            t = p.loadTexture(DATA_DIR+"tex256.png")
+            self.textures.append(t)
+            p.changeTexture(t,self.random_pixels(),self.w,self.h)
+            p.changeVisualShape(parent,j,textureUniqueId=t)
             
     def hide(self):
         for j in self.joints:

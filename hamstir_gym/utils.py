@@ -35,7 +35,7 @@ def find_links(car):
     return camera_link_id, left_wheel_id, right_wheel_id
     
 def get_camera_view(car, camera_link_id, cameraFocusVec=(4,0,0), cameraUpVec=(0,0,1)):
-    camPos, camOrient = p.getLinkState(car, camera_link_id)[4:6]
+    camPos, camOrient = p.getLinkState(car, camera_link_id, computeForwardKinematics=True)[4:6]
     camQ = Quaternion(camOrient[-1:]+camOrient[:3])
     focusPos = [a+b for a,b in zip(camPos, camQ.rotate(cameraFocusVec))]
     return p.computeViewMatrix(camPos, focusPos, camQ.rotate(cameraUpVec))

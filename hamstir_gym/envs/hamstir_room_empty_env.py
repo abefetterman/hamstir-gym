@@ -10,7 +10,7 @@ from hamstir_gym.multiroom import MultiRoom
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=False, step_ratio=25, discrete=False):
+    def __init__(self, render=True, step_ratio=25, discrete=False):
         
         self.camera_height, self.camera_width = 160,160
         
@@ -37,6 +37,7 @@ class HamstirRoomEmptyEnv(gym.Env):
     
     def _resetClient(self):
         if (self.physicsClientId>=0):
+            self._p.resetSimulation()
             return
             
         self.ownsPhysicsClient = True
@@ -47,41 +48,31 @@ class HamstirRoomEmptyEnv(gym.Env):
             self._p = bullet_client.BulletClient()
 
         self.physicsClientId = self._p._client
-        self._p.configureDebugVisualizer(pybullet.COV_ENABLE_GUI,1)
-        self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,1)
-    
-        self._p.setGravity(0,0,-10)
-        self._p.setPhysicsEngineParameter(fixedTimeStep=0.02)
-        
-        self._p.setAdditionalSearchPath(DATA_DIR)
-        
-        
         self.multiroom = MultiRoom()
-        self.multiroom.load(self._p) 
-        
-        # self.multiroom.reset_room()
-        
-        cubeStartPos = [0,2,.1]
-        cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,0])
-        self.robot = self._p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
-        
-        
-        self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
-        self.wheel_ids = [left_wheel_id, right_wheel_id]
-        
         self.cameraProjection = pybullet.computeProjectionMatrixFOV(fov=90.0, aspect=1.0, nearVal=0.1, farVal=10.0)
         
     
     def reset(self):
         self._resetClient()
         
-        self.multiroom.reset_room()
+        self._p.configureDebugVisualizer(pybullet.COV_ENABLE_GUI,1)
+        self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,1)
+    
+        self._p.setGravity(0,0,-10)
+        self._p.setPhysicsEngineParameter(fixedTimeStep=0.01)
+        
+        self._p.setAdditionalSearchPath(DATA_DIR)
+        
+        self.multiroom.load(self._p) 
         
         cubeStartPos = [0,2,.2]
         cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi
         cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,cubeStartAngle])
-        self._p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
-        self._p.resetBaseVelocity(self.robot, [0,0,0], [0,0,0])
+        self.robot = self._p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
+        
+        self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
+        self.wheel_ids = [left_wheel_id, right_wheel_id]
+        
         
         self.ep_len, self.ep_reward = 0, 0.0
         

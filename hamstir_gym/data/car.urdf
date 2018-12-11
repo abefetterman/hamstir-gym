@@ -3,19 +3,19 @@
   <link name="base_link">
     <visual>
       <geometry>
-        <cylinder length="0.10938" radius="0.176"/>
+        <cylinder length="0.10938" radius="0.1"/>
       </geometry>
       <origin xyz="0.001 0 0.05199" rpy="0 0 0"/>
     </visual>
     <collision>
       <geometry>
-        <cylinder length="0.10938" radius="0.176"/>
+        <cylinder length="0.10938" radius="0.1"/>
       </geometry>
       <origin xyz="0 0 0.05949" rpy="0 0 0"/>
     </collision>
     <inertial>
       <mass value="2.4"/>
-      <inertia ixx="0.020978397" ixy="0" ixz="0" iyy="0.020978397" iyz="0" izz="0.0371712"/>
+      <inertia ixx="0.008392797" ixy="0" ixz="0" iyy="0.008392797" iyz="0" izz="0.012"/>
       <origin xyz="0 0 0.05949" rpy="0 0 0"/>
     </inertial>
   </link>
@@ -38,7 +38,7 @@
   <joint name="right_wheel_joint" type="continuous">
     <parent link="base_link"/>
     <child link="right_wheel_link"/>
-    <origin xyz="0 -0.115 0.025" rpy="-1.570796327 0 0"/>
+    <origin xyz="0 -0.06 0.025" rpy="-1.570796327 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
   <gazebo reference="right_wheel">
@@ -66,7 +66,7 @@
   <joint name="left_wheel_joint" type="continuous">
     <parent link="base_link"/>
     <child link="left_wheel_link"/>
-    <origin xyz="0 0.115 0.025" rpy="-1.570796327 0 0"/>
+    <origin xyz="0 0.06 0.025" rpy="-1.570796327 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
   <gazebo reference="left_wheel">
@@ -94,7 +94,7 @@
   <joint name="caster_front_joint" type="fixed">
     <parent link="base_link"/>
     <child link="caster_front_link"/>
-    <origin xyz="0.115 0 0.007" rpy="-1.570796327 0 0"/>
+    <origin xyz="0.05 0 0.007" rpy="-1.570796327 0 0"/>
   </joint>
   <gazebo reference="caster_front_link">
     <mu1 value="0"/>
@@ -121,7 +121,7 @@
   <joint name="caster_back_joint" type="fixed">
     <parent link="base_link"/>
     <child link="caster_back_link"/>
-    <origin xyz="-0.135 0 0.009" rpy="-1.570796327 0 0"/>
+    <origin xyz="-0.05 0 0.009" rpy="-1.570796327 0 0"/>
   </joint>
   <gazebo reference="caster_back_link">
     <mu1 value="0"/>
@@ -132,22 +132,22 @@
   <link name="camera_link">
     <visual>
       <geometry>
-        <box size="0.01 0.1 0.1"/>
+        <box size="0.01 0.03 0.03"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <box size="0.01 0.1 0.1"/>
+        <box size="0.01 0.03 0.03"/>
       </geometry>
     </collision>
     <inertial>
-      <mass value="0.1"/>
-      <inertia ixx="0.000166667" ixy="0" ixz="0" iyy="0.000084167" iyz="0" izz="0.000084167"/>
+      <mass value="0.009"/>
+      <inertia ixx="0.00000135" ixy="0" ixz="0" iyy="7.5e-7" iyz="0" izz="7.5e-7"/>
     </inertial>
   </link>
   <joint name="camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_link"/>
-    <origin xyz="0.18 0 0.06" rpy="0 0 0"/>
+    <origin xyz="0.06 0 0.1" rpy="0 0 0"/>
   </joint>
 </robot>
