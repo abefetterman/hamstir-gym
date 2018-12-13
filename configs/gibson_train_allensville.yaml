@@ -3,13 +3,13 @@ model_id: Allensville
 target_orn: [0, 0, 0]
 target_pos: [1.05, 2.3, 0.5]
 initial_orn: [0, 0, 0]
-initial_pos: [1.05, 2.3, 0.5]
+initial_pos: [5.2, 2.1, 0.5]
 fov: 1.57
-is_discrete: true
+is_discrete: false
 
 use_filler: true
-display_ui: true
-show_diagnostics: true
+display_ui: false
+show_diagnostics: false
 ui_num: 1
 ui_components: [RGB_FILLED]
 random:
@@ -28,5 +28,5 @@ speed:
   timestep: 0.001
   frameskip: 10
 
-mode: gui #gui|headless
+mode: headless #gui|headless
 verbose: false
