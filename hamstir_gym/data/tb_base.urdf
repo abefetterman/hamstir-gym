@@ -162,7 +162,7 @@
     </inertial>
   </link>
   <joint name="eye_joint" type="fixed">
-   <origin rpy="1.57079632679 0 -1.57079632679" xyz="0 0.05 0"/>
+   <origin rpy="1.57079632679 0 -1.57079632679" xyz="0 0.05 0.1"/>
     <parent link="base_link"/>
     <child link="eyes"/>
   </joint>
