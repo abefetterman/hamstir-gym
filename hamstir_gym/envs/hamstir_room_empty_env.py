@@ -10,9 +10,9 @@ from hamstir_gym.multiroom import MultiRoom
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=True, step_ratio=25, discrete=False):
+    def __init__(self, render=False, step_ratio=5, discrete=False):
         
-        self.camera_height, self.camera_width = 160,160
+        self.camera_height, self.camera_width = 80,80
         
         if discrete:
             self.action_space = spaces.Discrete(5)
@@ -29,7 +29,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.room = None
         self.robot = None
         self.step_ratio = step_ratio # render timesteps / step(); render tstep = 1/240 sec
-        self.renderer = pybullet.ER_BULLET_HARDWARE_OPENGL
+        self.renderer = pybullet.ER_BULLET_HARDWARE_OPENGL # or pybullet.ER_TINY_RENDERER
         self.maxForce = 10
         self.maxSteps = 120
         
