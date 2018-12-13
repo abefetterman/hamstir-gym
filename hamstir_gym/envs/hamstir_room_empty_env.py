@@ -10,7 +10,7 @@ from hamstir_gym.multiroom import MultiRoom
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=False, step_ratio=5, discrete=False):
+    def __init__(self, render=True, step_ratio=5, discrete=False):
         
         self.camera_height, self.camera_width = 80,80
         

@@ -13,7 +13,7 @@ class Hamstirbot(WalkerBase):
     def __init__(self, config, env=None):
         self.config = config
         scale = config["robot_scale"] if "robot_scale" in config.keys() else self.default_scale
-        WalkerBase.__init__(self, "car.urdf", "base_link", action_dim=4,
+        WalkerBase.__init__(self, "tb_base.urdf", "base_link", action_dim=4,
                             sensor_dim=20, power=2.5, scale=scale,
                             initial_pos=config['initial_pos'],
                             target_pos=config["target_pos"],

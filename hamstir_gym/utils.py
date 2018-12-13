@@ -26,7 +26,7 @@ def find_links(car):
     left_wheel_id = -1
     for joint in range(num_joints):
         joint_name = p.getJointInfo(car, joint)[12]
-        if joint_name == b'camera_link':
+        if joint_name == b'eyes':
             camera_link_id = joint
         if joint_name == b'right_wheel_link':
             right_wheel_id = joint
