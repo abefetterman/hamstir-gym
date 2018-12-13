@@ -13,8 +13,8 @@ class Hamstirbot(WalkerBase):
     def __init__(self, config, env=None):
         self.config = config
         scale = config["robot_scale"] if "robot_scale" in config.keys() else self.default_scale
-        WalkerBase.__init__(self, "car.urdf", "base_link", action_dim=2,
-                            sensor_dim=0, power=2.5, scale=scale,
+        WalkerBase.__init__(self, "car.urdf", "base_link", action_dim=4,
+                            sensor_dim=20, power=2.5, scale=scale,
                             initial_pos=config['initial_pos'],
                             target_pos=config["target_pos"],
                             resolution=config["resolution"],
@@ -25,7 +25,7 @@ class Hamstirbot(WalkerBase):
 
         if self.is_discrete:
             self.action_space = gym.spaces.Discrete(5)
-            self.vel = 1.0
+            self.vel = .1
             self.action_list = [[self.vel, self.vel],
                                 [-self.vel, -self.vel],
                                 [self.vel, -self.vel],
@@ -34,7 +34,7 @@ class Hamstirbot(WalkerBase):
 
             self.setup_keys_to_action()
         else:
-            action_high = 2.0 * np.ones([2])
+            action_high = 0.02 * np.ones([2])
             self.action_space = gym.spaces.Box(-action_high, action_high)
 
     def apply_action(self, action):

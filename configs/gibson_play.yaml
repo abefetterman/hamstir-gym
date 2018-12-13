@@ -11,7 +11,7 @@ use_filler: true
 display_ui: true
 show_diagnostics: true
 ui_num: 2
-ui_components: [RGB_FILLED, DEPTH]
+ui_components: [RGB_FILLED]
 random:
   random_initial_pose : false
   random_target_pose : false
@@ -21,12 +21,12 @@ random:
   random_init_rot_range: [-0.1, 0.1]
   random_target_range: 0.1
 
-output: [nonviz_sensor, rgb_filled, depth]
+output: [nonviz_sensor, rgb_filled]
 resolution: 256
 
 speed:
-  timestep: 0.01
-  frameskip: 1
+  timestep: 0.02
+  frameskip: 10
 
 mode: gui #gui|headless
 verbose: false

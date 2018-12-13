@@ -34,6 +34,12 @@
       <mass value="0.080186715"/>
       <inertia ixx="0.000027674" ixy="0" ixz="0" iyy="0.000027674" iyz="0" izz="0.000049677"/>
     </inertial>
+     <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <stiffness value="30000"/>
+      <damping value="1000"/>
+    </contact>
   </link>
   <joint name="right_wheel_joint" type="continuous">
     <parent link="base_link"/>
@@ -62,6 +68,12 @@
       <mass value="0.080186715"/>
       <inertia ixx="0.000027674" ixy="0" ixz="0" iyy="0.000027674" iyz="0" izz="0.000049677"/>
     </inertial>
+     <contact>
+      <lateral_friction value="1.0"/>
+      <rolling_friction value="0.0"/>
+      <stiffness value="30000"/>
+      <damping value="1000"/>
+    </contact>
   </link>
   <joint name="left_wheel_joint" type="continuous">
     <parent link="base_link"/>
@@ -129,7 +141,7 @@
     <kp value="100000000.0"/>
     <kd value="10000.0"/>
   </gazebo>
-  <link name="camera_link">
+  <link name="eyes">
     <visual>
       <geometry>
         <box size="0.01 0.03 0.03"/>
@@ -145,9 +157,9 @@
       <inertia ixx="0.00000135" ixy="0" ixz="0" iyy="7.5e-7" iyz="0" izz="7.5e-7"/>
     </inertial>
   </link>
-  <joint name="camera_joint" type="fixed">
+  <joint name="eyes_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="camera_link"/>
+    <child link="eyes"/>
     <origin xyz="0.06 0 0.1" rpy="0 0 0"/>
   </joint>
 </robot>
