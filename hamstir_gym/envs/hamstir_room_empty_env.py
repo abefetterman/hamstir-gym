@@ -2,8 +2,7 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
-import pybullet
-from pybullet_utils import bullet_client
+import pybullet as p
 from hamstir_gym.utils import *
 from hamstir_gym.multiroom import MultiRoom
 
@@ -29,7 +28,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.room = None
         self.robot = None
         self.step_ratio = step_ratio # render timesteps / step(); render tstep = 1/240 sec
-        self.renderer = pybullet.ER_BULLET_HARDWARE_OPENGL # or pybullet.ER_TINY_RENDERER
+        self.renderer = p.ER_BULLET_HARDWARE_OPENGL # or p.ER_TINY_RENDERER
         self.maxForce = 10
         self.maxSteps = 120
         
@@ -42,23 +41,24 @@ class HamstirRoomEmptyEnv(gym.Env):
             
         self.ownsPhysicsClient = True
 
-        if self.isRender:
-            self._p = bullet_client.BulletClient(connection_mode=pybullet.GUI)
-        else:
-            self._p = bullet_client.BulletClient()
+        # if self.isRender:
+        #     self._p = bullet_client.BulletClient(connection_mode=p.GUI)
+        # else:
+        #     self._p = bullet_client.BulletClient()
+        self._p = p
 
-        self.physicsClientId = self._p._client
+        self.physicsClientId = self._p.connect(p.GUI)
         self.multiroom = MultiRoom()
-        self.cameraProjection = pybullet.computeProjectionMatrixFOV(fov=90.0, aspect=1.0, nearVal=0.1, farVal=10.0)
+        self.cameraProjection = p.computeProjectionMatrixFOV(fov=90.0, aspect=1.0, nearVal=0.1, farVal=10.0)
         
     
     def reset(self):
         self._resetClient()
         
-        self._p.configureDebugVisualizer(pybullet.COV_ENABLE_GUI,1)
-        self._p.configureDebugVisualizer(pybullet.COV_ENABLE_RENDERING,1)
+        self._p.configureDebugVisualizer(p.COV_ENABLE_GUI,1)
+        self._p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
     
-        self._p.setGravity(0,0,-10)
+        self._p.setGravity(0,0,-9.81)
         self._p.setPhysicsEngineParameter(fixedTimeStep=0.01)
         
         self._p.setAdditionalSearchPath(DATA_DIR)
@@ -67,7 +67,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         cubeStartPos = [0,2,.2]
         cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi
-        cubeStartOrientation = pybullet.getQuaternionFromEuler([0,0,cubeStartAngle])
+        cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
         self.robot = self._p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
         
         self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
@@ -85,7 +85,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         wheel_speeds = self.actions[action] if self.actions else action
         for wheel, vel in zip(self.wheel_ids, wheel_speeds):
             # presumably targetVelocity is in radians/second, force is in N-m -- unverified
-            p.setJointMotorControl2(self.robot, wheel, pybullet.VELOCITY_CONTROL, targetVelocity=vel, force=self.maxForce)
+            p.setJointMotorControl2(self.robot, wheel, p.VELOCITY_CONTROL, targetVelocity=vel, force=self.maxForce)
 
         for _ in range(self.step_ratio):
             self._p.stepSimulation()

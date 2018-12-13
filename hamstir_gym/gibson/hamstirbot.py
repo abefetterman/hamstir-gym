@@ -37,17 +37,18 @@ class Hamstirbot(WalkerBase):
             action_high = 0.02 * np.ones([2])
             self.action_space = gym.spaces.Box(-action_high, action_high)
 
+    def map_action(self, action):
+        if self.is_discrete: 
+            return self.action_list[action]
+        return action
     def apply_action(self, action):
-        if self.is_discrete:
-            realaction = self.action_list[action]
-        else:
-            realaction = action
-        WalkerBase.apply_action(self, realaction)
+        WalkerBase.apply_action(self, self.map_action(action))
 
     def steering_cost(self, action):
-        if not self.is_discrete:
-            return 0
-        if action == 2 or action == 3:
+        a = action
+        if typeof(action) == int:
+            a = self.map_action(action)
+        if a[0] < 0 or a[1] < 0:
             return -0.1
         else:
             return 0
@@ -56,7 +57,7 @@ class Hamstirbot(WalkerBase):
         WalkerBase.robot_specific_reset(self)
 
     def alive_bonus(self, z, pitch):
-        return +1 # if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
+        return +1 if z > 0.26 else -1  # 0.25 is central sphere rad, die if it scrapes the ground
 
     def setup_keys_to_action(self):
         self.keys_to_action = {

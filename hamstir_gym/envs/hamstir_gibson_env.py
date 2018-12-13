@@ -19,7 +19,7 @@ import pybullet_data
 import cv2
 
 
-CALC_OBSTACLE_PENALTY = 1
+CALC_OBSTACLE_PENALTY = 0
 
 tracking_camera = {
     'yaw': 20,
@@ -50,6 +50,9 @@ class HamstirGibsonEnv(CameraRobotEnv):
         self.scene_introduce()
         self.total_reward = 0
         self.total_frame = 0
+        self.electricity_cost = 0
+        self.stall_torque_cost = -0.01
+        self.wall_collision_cost = -1.0
 
 
     def get_odom(self):
@@ -66,35 +69,17 @@ class HamstirGibsonEnv(CameraRobotEnv):
         return img
 
     def _rewards(self, action=None, debugmode=False):
-        a = action
+        a = self.robot.map_action(action)
         potential_old = self.potential
-        self.potential = self.robot.calc_potential()
+        self.potential = self.robot.calc_goalless_potential()
         progress = float(self.potential - potential_old)
-
-        feet_collision_cost = 0.0
-        for i, f in enumerate(
-                self.robot.feet):  # TODO: Maybe calculating feet contacts could be done within the robot code
-            # print(f.contact_list())
-            contact_ids = set((x[2], x[4]) for x in f.contact_list())
-            # print("CONTACT OF '%d' WITH %d" % (contact_ids, ",".join(contact_names)) )
-            if (self.ground_ids & contact_ids):
-                # see Issue 63: https://github.com/openai/roboschool/issues/63
-                # feet_collision_cost += self.foot_collision_cost
-                self.robot.feet_contact[i] = 1.0
-            else:
-                self.robot.feet_contact[i] = 0.0
-        # print(self.robot.feet_contact)
 
         electricity_cost  = self.electricity_cost  * float(np.abs(a*self.robot.joint_speeds).mean())  # let's assume we 
         electricity_cost  += self.stall_torque_cost * float(np.square(a).mean())
 
-
         steering_cost = self.robot.steering_cost(a)
-        debugmode = 0
-        if debugmode:
-            print("steering cost", steering_cost)
 
-        wall_contact = [pt for pt in self.robot.parts['base_link'].contact_list() if pt[6][2] > 0.15]
+        wall_contact = [pt for pt in self.robot.parts['base_link'].contact_list() if pt[6][2] < 0.15]
         wall_collision_cost = self.wall_collision_cost * len(wall_contact)
 
         joints_at_limit_cost = float(self.joints_at_limit_cost * self.robot.joints_at_limit)
@@ -110,33 +95,24 @@ class HamstirGibsonEnv(CameraRobotEnv):
             obstacle_penalty = get_obstacle_penalty(self.robot, self.render_depth)
 
         debugmode = 0
-        if debugmode:
-            print("angle cost", angle_cost)
-
-        debugmode = 0
         if (debugmode):
             print("Wall contact points", len(wall_contact))
             print("Collision cost", wall_collision_cost)
             print("electricity_cost", electricity_cost)
-            print("close to target", close_to_target)
-            #print("progress")
-            #print(progress)
-            #print("electricity_cost")
-            #print(electricity_cost)
-            #print("joints_at_limit_cost")
-            #print(joints_at_limit_cost)
-            #print("feet_collision_cost")
-            #print(feet_collision_cost)
+            # print("close to target", close_to_target)
+            print("progress", progress)
+            #print("electricity_cost", electricity_cost)
+            #print("joints_at_limit_cost", joints_at_limit_cost)
 
         rewards = [
             #alive,
             progress,
-            #wall_collision_cost,
-            close_to_target,
-            steering_cost,
-            angle_cost,
-            obstacle_penalty
-            #electricity_cost,
+            wall_collision_cost,
+            # close_to_target,
+            # steering_cost,
+            # angle_cost,
+            # obstacle_penalty,
+            electricity_cost
             #joints_at_limit_cost,
             #feet_collision_cost
         ]
