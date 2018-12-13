@@ -46,7 +46,7 @@ class Hamstirbot(WalkerBase):
 
     def steering_cost(self, action):
         a = action
-        if typeof(action) == int:
+        if type(action) == int:
             a = self.map_action(action)
         if a[0] < 0 or a[1] < 0:
             return -0.1
