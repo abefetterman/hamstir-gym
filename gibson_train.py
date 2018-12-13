@@ -6,7 +6,7 @@ os.sys.path.insert(0,parentdir)
 
 import gym, logging
 from mpi4py import MPI
-from gibson.envs.husky_env import HuskyNavigateEnv
+from hamstir_gym.envs.hamstir_gibson_env import HamstirGibsonEnv
 from baselines.common import set_global_seeds
 import baselines.common.tf_util as U
 from gibson.utils.fuse_policy2 import MlpPolicy, MlpPolicy2, CnnPolicy2
@@ -46,7 +46,7 @@ def train(num_timesteps, seed):
     config_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'configs', 'gibson_train_allensville.yaml')
     print(config_file)
 
-    raw_env = HuskyNavigateEnv(gpu_idx=args.gpu_idx,
+    raw_env = HamstirGibsonEnv(gpu_idx=args.gpu_idx,
                                 config=config_file)
 
     env = Monitor(raw_env, logger.get_dir() and
