@@ -15,9 +15,11 @@ import numpy as np
 import sys
 import pybullet as p
 
+import gym.spaces
 import pybullet_data
 import cv2
 
+from collections import OrderedDict
 
 CALC_OBSTACLE_PENALTY = 0
 
@@ -142,6 +144,14 @@ class HamstirGibsonEnv(CameraRobotEnv):
         obs = CameraRobotEnv._reset(self)
         self._flag_reposition()
         return obs
+        
+    def reset(self):
+        obs = CameraRobotEnv.reset(self)
+        return obs["rgb_filled"]
+        
+    def step(self, a):
+        obs,rew,done,info = CameraRobotEnv.step(self, a)
+        return obs["rgb_filled"],rew,done,info
 
 def get_obstacle_penalty(robot, depth):
     screen_sz = robot.obs_dim[0]
