@@ -55,6 +55,8 @@ class HamstirGibsonEnv(CameraRobotEnv):
         self.electricity_cost = 0
         self.stall_torque_cost = -0.01
         self.wall_collision_cost = -1.0
+        self.collision_penalty = -1000.0
+        self.has_collided = 0
 
 
     def get_odom(self):
@@ -80,9 +82,12 @@ class HamstirGibsonEnv(CameraRobotEnv):
         electricity_cost  += self.stall_torque_cost * float(np.square(a).mean())
 
         steering_cost = self.robot.steering_cost(a)
+        
+        directed_progress = progress if steering_cost == 0 else steering_cost
 
         wall_contact = [pt for pt in self.robot.parts['base_link'].contact_list() if pt[6][2] < 0.15]
-        wall_collision_cost = self.wall_collision_cost * len(wall_contact)
+        self.has_collided = 1 if (self.has_collided or len(wall_contact) > 0) else 0
+        wall_collision_cost = self.collision_penalty * self.has_collided
 
         joints_at_limit_cost = float(self.joints_at_limit_cost * self.robot.joints_at_limit)
         close_to_target = 0
@@ -100,23 +105,16 @@ class HamstirGibsonEnv(CameraRobotEnv):
         if (debugmode):
             print("Wall contact points", len(wall_contact))
             print("Collision cost", wall_collision_cost)
-            print("electricity_cost", electricity_cost)
+            # print("electricity_cost", electricity_cost)
             # print("close to target", close_to_target)
             print("progress", progress)
+            print("directed_progress", directed_progress)
             #print("electricity_cost", electricity_cost)
             #print("joints_at_limit_cost", joints_at_limit_cost)
 
         rewards = [
-            #alive,
-            progress,
+            directed_progress,
             wall_collision_cost,
-            # close_to_target,
-            # steering_cost,
-            # angle_cost,
-            # obstacle_penalty,
-            electricity_cost
-            #joints_at_limit_cost,
-            #feet_collision_cost
         ]
         return rewards
 
@@ -125,7 +123,7 @@ class HamstirGibsonEnv(CameraRobotEnv):
         pitch = self.robot.get_rpy()[1]
         alive = float(self.robot.alive_bonus(height, pitch))
 
-        done = not alive or self.nframe > 250 or height < 0
+        done = self.has_collided or not alive or self.nframe > 250 or height < 0
         #if done:
         #    print("Episode reset")
         return done
@@ -141,6 +139,7 @@ class HamstirGibsonEnv(CameraRobotEnv):
     def  _reset(self):
         self.total_frame = 0
         self.total_reward = 0
+        self.has_collided = 0
         obs = CameraRobotEnv._reset(self)
         self._flag_reposition()
         return obs
