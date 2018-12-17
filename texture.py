@@ -7,10 +7,10 @@ mod = Modder()
 physicsClient = p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
 # planeId = p.loadURDF("plane.urdf")
-room=p.loadURDF("./hamstir_gym/data/room.urdf")
+room=p.loadURDF("./hamstir_gym/data/room12x12mesh.urdf")
 mod.load(room)
-mod.randomize()
-
+# mod.randomize()
+# 
 try:
     while True:
         p.stepSimulation()
