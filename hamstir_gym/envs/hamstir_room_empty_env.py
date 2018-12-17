@@ -9,7 +9,7 @@ from hamstir_gym.multiroom import MultiRoom
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=True, step_ratio=5, discrete=False):
+    def __init__(self, render=False, step_ratio=25, discrete=False):
         
         self.camera_height, self.camera_width = 80,80
         
@@ -112,7 +112,7 @@ class HamstirRoomEmptyEnv(gym.Env):
             
         if wallDistance < 0.01:
             done=True
-            reward = -100
+            reward = -500
         elif wallDistance < .1:
             # penalty for being close to the wall
             reward -= 1e3 * ((.1-wallDistance) ** 2)
