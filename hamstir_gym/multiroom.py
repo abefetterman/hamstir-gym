@@ -18,7 +18,9 @@ class MultiRoom:
         self.room = self._p.loadURDF(self.data_dir+self.data_rooms[i], startPos, useFixedBase=1)
         
         self.modder.load(self.room)
-        # self.modder.randomize()
+        
+    def reset(self):
+        self.modder.randomize()
         
     def active_room(self):
         return self.room

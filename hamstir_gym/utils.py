@@ -7,7 +7,7 @@ DATA_DIR = osp.join(osp.abspath(osp.dirname(__file__)),'data/')
 DATA_ROOMS = [
     # "/room6x6.urdf",
     # "/room2x12.urdf",
-    "/room12x12.urdf"
+    "/room12x12mesh.urdf"
 ]
 
 def getWallDistance(wall_obj,ref_obj, maxDistance = 1.0):
@@ -39,4 +39,5 @@ def get_camera_view(car, camera_link_id, cameraFocusVec=(4,0,0), cameraUpVec=(0,
     camQ = Quaternion(camOrient[-1:]+camOrient[:3])
     focusPos = [a+b for a,b in zip(camPos, camQ.rotate(cameraFocusVec))]
     return p.computeViewMatrix(camPos, focusPos, camQ.rotate(cameraUpVec))
+
 

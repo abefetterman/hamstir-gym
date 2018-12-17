@@ -40,7 +40,6 @@ def callback(_locals, _globals):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default=config_file)
     args = parser.parse_args()
     
     # Create log dir
@@ -51,7 +50,7 @@ if __name__ == '__main__':
     env = Monitor(env, log_dir, allow_early_resets=True)
     env = DummyVecEnv([lambda: env])
     
-    model = PPO2(CnnPolicy, env, verbose=1)
+    model = PPO2(CnnPolicy, env, verbose=1, gamma=0.95, n_steps=2000)
     
     # print(env.config)
-    model.learn(total_timesteps=100000, callback=callback)
+    model.learn(total_timesteps=1000000, callback=callback)

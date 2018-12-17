@@ -36,43 +36,50 @@ class HamstirRoomEmptyEnv(gym.Env):
     
     def _resetClient(self):
         if (self.physicsClientId>=0):
-            self._p.resetSimulation()
+            # p.resetSimulation()
             return
             
         self.ownsPhysicsClient = True
 
         # if self.isRender:
-        #     self._p = bullet_client.BulletClient(connection_mode=p.GUI)
+        #     p = bullet_client.BulletClient(connection_mode=p.GUI)
         # else:
-        #     self._p = bullet_client.BulletClient()
-        self._p = p
+        #     p = bullet_client.BulletClient()
+        # p = p
 
-        self.physicsClientId = self._p.connect(p.GUI)
+        self.physicsClientId = p.connect(p.GUI)
         self.multiroom = MultiRoom()
         self.cameraProjection = p.computeProjectionMatrixFOV(fov=90.0, aspect=1.0, nearVal=0.1, farVal=10.0)
+        
+        p.configureDebugVisualizer(p.COV_ENABLE_GUI,1)
+        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
+    
+        p.setGravity(0,0,-9.81)
+        p.setPhysicsEngineParameter(fixedTimeStep=0.01)
+        
+        p.setAdditionalSearchPath(DATA_DIR)
+        
+        self.multiroom.load(p) 
+        
+        cubeStartPos = [0,2,.2]
+        cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi
+        cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
+        self.robot = p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
+        
+        self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
+        self.wheel_ids = [left_wheel_id, right_wheel_id]
         
     
     def reset(self):
         self._resetClient()
         
-        self._p.configureDebugVisualizer(p.COV_ENABLE_GUI,1)
-        self._p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
-    
-        self._p.setGravity(0,0,-9.81)
-        self._p.setPhysicsEngineParameter(fixedTimeStep=0.01)
-        
-        self._p.setAdditionalSearchPath(DATA_DIR)
-        
-        self.multiroom.load(self._p) 
+        self.multiroom.reset()
         
         cubeStartPos = [0,2,.2]
         cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi
         cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
-        self.robot = self._p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
-        
-        self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
-        self.wheel_ids = [left_wheel_id, right_wheel_id]
-        
+        p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
+        p.resetBaseVelocity(self.robot, [0,0,0], [0,0,0])
         
         self.ep_len, self.ep_reward = 0, 0.0
         
@@ -80,7 +87,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         
     def step(self, action):
-        startPosition,_ = self._p.getBasePositionAndOrientation(self.robot)
+        startPosition,_ = p.getBasePositionAndOrientation(self.robot)
         
         wheel_speeds = self.actions[action] if self.actions else action
         for wheel, vel in zip(self.wheel_ids, wheel_speeds):
@@ -88,11 +95,11 @@ class HamstirRoomEmptyEnv(gym.Env):
             p.setJointMotorControl2(self.robot, wheel, p.VELOCITY_CONTROL, targetVelocity=vel, force=self.maxForce)
 
         for _ in range(self.step_ratio):
-            self._p.stepSimulation()
+            p.stepSimulation()
         
         img_arr = self._get_img()
         
-        endPosition,_ = self._p.getBasePositionAndOrientation(self.robot)
+        endPosition,_ = p.getBasePositionAndOrientation(self.robot)
         travelDistance2 = sum([(x-y)*(x-y) for x,y in zip(startPosition,endPosition)])
         
         wallDistance = getWallDistance(self.multiroom.active_room(), self.robot)
@@ -120,7 +127,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         
     def _get_img(self):
         cameraView = get_camera_view(self.robot, self.camera_link_id)
-        img_params = self._p.getCameraImage(self.camera_width, self.camera_height, cameraView, self.cameraProjection, renderer=self.renderer)
+        img_params = p.getCameraImage(self.camera_width, self.camera_height, cameraView, self.cameraProjection, renderer=self.renderer)
         return img_params[2]
 
     def render(self, mode='human', close=False):
