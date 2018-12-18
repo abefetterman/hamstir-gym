@@ -36,7 +36,7 @@ class Hamstirbot(WalkerBase):
         else:
             action_high = 0.02 * np.ones([2])
             self.action_space = gym.spaces.Box(-action_high, action_high)
-
+        
     def map_action(self, action):
         if self.is_discrete: 
             return self.action_list[action]

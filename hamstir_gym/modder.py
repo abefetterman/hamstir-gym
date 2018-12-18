@@ -1,5 +1,6 @@
 import pybullet as p
 import numpy as np
+from gym.utils import seeding
 
 from hamstir_gym.utils import DATA_DIR
 
@@ -7,6 +8,11 @@ class Modder:
     def __init__(self, h=32, w=32):
         self.h,self.w = h, w
         self.pixels = np.zeros((h,w,3),dtype=np.int32)
+        self.seed()
+        
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        return seed
         
     def load(self, parent):
         self.parent = parent
@@ -29,7 +35,7 @@ class Modder:
             p.changeVisualShape(self.parent,j,rgbaColor=[1,1,1,1])
     
     def randomRGB(self):
-        return np.random.uniform(size=3)*256
+        return self.np_random.uniform(size=3)*256
     
     def randomize(self):
         for t in self.textures:
@@ -42,11 +48,11 @@ class Modder:
             self.rand_uniform,
             self.rand_noise,
         ]
-        choice = np.random.randint(len(choices))
+        choice = self.np_random.randint(len(choices))
         return choices[choice]()
         
     def rand_checker(self):
-        checker_size = 2 ** np.random.randint(3,7)
+        checker_size = 2 ** self.np_random.randint(3,7)
         rgb1, rgb2 = self.randomRGB(), self.randomRGB()
         for i in range(self.h):
             for j in range(self.w):
@@ -58,7 +64,7 @@ class Modder:
         
     def rand_gradient(self):
         rgb1, rgb2 = self.randomRGB(), self.randomRGB()
-        vertical = np.random.randint(2)
+        vertical = self.np_random.randint(2)
         if vertical == 1:
             for j in range(self.w):
                 frac = float(j)/(self.w-1.0)
@@ -76,8 +82,8 @@ class Modder:
         
     def rand_noise(self):
         rgb1, rgb2 = self.randomRGB(), self.randomRGB()
-        fraction = 0.1 + np.random.uniform() * 0.8
-        mask = np.random.uniform(size=(self.h,self.w)) > fraction
+        fraction = 0.1 + self.np_random.uniform() * 0.8
+        mask = self.np_random.uniform(size=(self.h,self.w)) > fraction
         self.pixels[..., :] = rgb1
         self.pixels[mask, :] = rgb2
         return self.pixels.flatten().tolist()

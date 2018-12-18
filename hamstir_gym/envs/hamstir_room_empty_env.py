@@ -11,13 +11,19 @@ class HamstirRoomEmptyEnv(gym.Env):
 
     def __init__(self, render=False, step_ratio=25, discrete=False):
         
-        self.camera_height, self.camera_width = 80,80
+        self.camera_height, self.camera_width = 128,128
+        self.vel_mult = 10.0
         
         if discrete:
             self.action_space = spaces.Discrete(5)
-            self.actions = [(0,0),(10,10),(-5,-5),(5,-5),(-5,5)]
+            self.vel = 0.5
+            self.actions = [[self.vel, self.vel],
+                                [-self.vel, -self.vel],
+                                [self.vel, -self.vel],
+                                [-self.vel, self.vel],
+                                [0, 0]]
         else:
-            self.action_space = spaces.Box(-10,10,(2,),dtype=np.float32)
+            self.action_space = spaces.Box(-1,1,(2,),dtype=np.float32)
             self.actions = None
             
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.camera_height, self.camera_width, 4), dtype=np.uint8) # returns RGBA
@@ -31,10 +37,17 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.step_ratio = step_ratio # render timesteps / step(); render tstep = 1/240 sec
         self.renderer = p.ER_BULLET_HARDWARE_OPENGL # or p.ER_TINY_RENDERER
         self.maxForce = 10
-        self.maxSteps = 120
+        self.maxSteps = 250
+        self.seed()
         
         return
-    
+        
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        if hasattr(self,'multiroom'):
+            seed = self.multiroom.seed(seed)
+        return [seed]
+        
     def _resetClient(self):
         if (self.physicsClientId>=0):
             # p.resetSimulation()
@@ -59,21 +72,20 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.multiroom.load(p) 
         
         cubeStartPos = [0,2,.2]
-        cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi
+        cubeStartAngle = self.np_random.uniform()*2*np.math.pi - np.math.pi
         cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
         self.robot = p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
         
         self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
         self.wheel_ids = [left_wheel_id, right_wheel_id]
         
-    
     def reset(self):
         self._resetClient()
         
         self.multiroom.reset()
         
         cubeStartPos = [0,2,.2]
-        cubeStartAngle = np.random.uniform()*2*np.math.pi - np.math.pi
+        cubeStartAngle = self.np_random.uniform()*2*np.math.pi - np.math.pi
         cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
         p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
         p.resetBaseVelocity(self.robot, [0,0,0], [0,0,0])
@@ -89,7 +101,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         wheel_speeds = self.actions[action] if self.actions else action
         for wheel, vel in zip(self.wheel_ids, wheel_speeds):
             # presumably targetVelocity is in radians/second, force is in N-m -- unverified
-            p.setJointMotorControl2(self.robot, wheel, p.VELOCITY_CONTROL, targetVelocity=vel, force=self.maxForce)
+            vel = np.clip(vel, -1.0, 1.0)
+            p.setJointMotorControl2(self.robot, wheel, p.VELOCITY_CONTROL, targetVelocity=vel*self.vel_mult, force=self.maxForce)
 
         for _ in range(self.step_ratio):
             p.stepSimulation()
