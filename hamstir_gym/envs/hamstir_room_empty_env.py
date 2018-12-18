@@ -25,6 +25,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.physicsClientId = -1
         self.ownsPhysicsClient = False
         self.isRender = render
+        self.connection_mode = p.GUI if render else p.DIRECT
         self.room = None
         self.robot = None
         self.step_ratio = step_ratio # render timesteps / step(); render tstep = 1/240 sec
@@ -41,18 +42,14 @@ class HamstirRoomEmptyEnv(gym.Env):
             
         self.ownsPhysicsClient = True
 
-        # if self.isRender:
-        #     p = bullet_client.BulletClient(connection_mode=p.GUI)
-        # else:
-        #     p = bullet_client.BulletClient()
-        # p = p
-
-        self.physicsClientId = p.connect(p.GUI)
+        self.physicsClientId = p.connect(self.connection_mode)
+            
         self.multiroom = MultiRoom()
         self.cameraProjection = p.computeProjectionMatrixFOV(fov=90.0, aspect=1.0, nearVal=0.1, farVal=10.0)
         
-        p.configureDebugVisualizer(p.COV_ENABLE_GUI,1)
-        p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
+        if self.isRender:
+            p.configureDebugVisualizer(p.COV_ENABLE_GUI,1)
+            p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
     
         p.setGravity(0,0,-9.81)
         p.setPhysicsEngineParameter(fixedTimeStep=0.01)
