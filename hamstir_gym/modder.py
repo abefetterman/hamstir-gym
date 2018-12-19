@@ -7,7 +7,8 @@ from hamstir_gym.utils import DATA_DIR
 class Modder:
     def __init__(self, h=256, w=256):
         self.h,self.w = h, w
-        self.pixels = np.zeros((h,w,3),dtype=np.int32)
+        self.np_pixels = np.zeros((h,w,3),dtype=np.int32)
+        self.pixels = [0]*self.h*self.w*3
         self.seed()
         
     def seed(self, seed=None):
@@ -40,6 +41,12 @@ class Modder:
     def randomize(self):
         for t in self.textures:
             p.changeTexture(t,self.random_pixels(),self.w,self.h)
+    
+    def copy_np_pixels(self):
+        f = self.np_pixels.flatten()
+        for i in range(self.h*self.w*3):
+            self.pixels[i] = f[i]
+        return self.pixels
             
     def random_pixels(self):
         choices = [
@@ -57,10 +64,10 @@ class Modder:
         for i in range(self.h):
             for j in range(self.w):
                 if ((i // checker_size) + (j // checker_size)) % 2 == 0:
-                    self.pixels[i][j] = rgb1
+                    self.np_pixels[i][j] = rgb1
                 else:
-                    self.pixels[i][j] = rgb2
-        return self.pixels.flatten().tolist()
+                    self.np_pixels[i][j] = rgb2
+        return self.copy_np_pixels()
         
     def rand_gradient(self):
         rgb1, rgb2 = self.randomRGB(), self.randomRGB()
@@ -68,23 +75,23 @@ class Modder:
         if vertical == 1:
             for j in range(self.w):
                 frac = float(j)/(self.w-1.0)
-                self.pixels[:][j] = rgb1*(1-frac) + frac*rgb2
+                self.np_pixels[:][j] = rgb1*(1-frac) + frac*rgb2
         else:
             for i in range(self.h):
                 frac = float(i)/(self.h-1.0)
-                self.pixels[i][:] = rgb1*(1-frac) + frac*rgb2
-        return self.pixels.flatten().tolist()
+                self.np_pixels[i][:] = rgb1*(1-frac) + frac*rgb2
+        return self.copy_np_pixels()
         
     def rand_uniform(self):
         rgb = self.randomRGB()
-        self.pixels[:][:] = rgb
-        return self.pixels.flatten().tolist()
+        self.np_pixels[:][:] = rgb
+        return self.copy_np_pixels()
         
     def rand_noise(self):
         rgb1, rgb2 = self.randomRGB(), self.randomRGB()
         fraction = 0.1 + self.np_random.uniform() * 0.8
         mask = self.np_random.uniform(size=(self.h,self.w)) > fraction
-        self.pixels[..., :] = rgb1
-        self.pixels[mask, :] = rgb2
-        return self.pixels.flatten().tolist()
+        self.np_pixels[..., :] = rgb1
+        self.np_pixels[mask, :] = rgb2
+        return self.copy_np_pixels()
         
