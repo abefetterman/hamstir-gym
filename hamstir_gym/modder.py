@@ -5,7 +5,7 @@ from gym.utils import seeding
 from hamstir_gym.utils import DATA_DIR
 
 class Modder:
-    def __init__(self, h=32, w=32):
+    def __init__(self, h=256, w=256):
         self.h,self.w = h, w
         self.pixels = np.zeros((h,w,3),dtype=np.int32)
         self.seed()
@@ -21,7 +21,7 @@ class Modder:
         self.textures = []
         for j in self.joints:
             p.changeVisualShape(parent,j,rgbaColor=[1,1,1,1])
-            t = p.loadTexture(DATA_DIR+"tex32.png")
+            t = p.loadTexture(DATA_DIR+"tex256.png")
             self.textures.append(t)
             p.changeTexture(t,self.random_pixels(),self.w,self.h)
             p.changeVisualShape(parent,j,textureUniqueId=t)
