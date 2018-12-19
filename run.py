@@ -24,6 +24,7 @@ if __name__ == '__main__':
     model = PPO2.load(args.model)
     
     obs = env.reset()
+    print(obs)
     try:
         while True:
             action, _states = model.predict(obs)

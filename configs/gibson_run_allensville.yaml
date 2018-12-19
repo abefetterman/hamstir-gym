@@ -1,0 +1,34 @@
+envname: HamstirGibsonEnv
+model_id: Allensville
+target_orn: [0, 0, 0]
+target_pos: [1.05, 2.3, 0.5]
+initial_orn: [0, 0, 0]
+initial_pos: [5.2, 2.1, 0.5]
+fov: 1.57
+is_discrete: false
+
+use_filler: true
+display_ui: true
+show_diagnostics: false
+ui_num: 1
+ui_components: [RGB_FILLED]
+random:
+  random_initial_pose : true
+  random_target_pose : false
+  random_init_x_range: [-0.1, 0.1]
+  random_init_y_range: [-0.1, 0.1]
+  random_init_z_range: [-0.1, 0.1]
+  random_init_rot_range: [-3.1, 3.1]
+  random_target_range: 0.1
+
+output: [rgb_filled]
+resolution: 128
+
+speed:
+  timestep: 0.001
+  frameskip: 10
+
+mode: gui #gui|headless
+verbose: true
+
+fast_lq_render: false
