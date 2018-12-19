@@ -53,4 +53,4 @@ if __name__ == '__main__':
     model = PPO2(CnnPolicy, env, verbose=1, gamma=0.95, n_steps=2000)
     
     # print(env.config)
-    model.learn(total_timesteps=1000000, callback=callback)
+    model.learn(total_timesteps=int(1e7), callback=callback)
