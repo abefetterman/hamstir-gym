@@ -10,24 +10,28 @@ from stable_baselines.common.policies import CnnPolicy
 from stable_baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines.bench import Monitor
 from stable_baselines.results_plotter import load_results, ts2xy
+from stable_baselines.common import set_global_seeds
 from stable_baselines import PPO2
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str)
+    parser.add_argument('--seed', type=int)
     args = parser.parse_args()
     
+    set_global_seeds(args.seed)
+    
     env = HamstirRoomEmptyEnv(render=True)
+    env.seed(args.seed)
     env = DummyVecEnv([lambda: env])
     
     model = PPO2.load(args.model)
     
     obs = env.reset()
-    print(obs)
     try:
         while True:
-            action, _states = model.predict(obs)
+            action, _states = model.predict(obs, deterministic=True)
             obs, rewards, dones, info = env.step(action)
-    except:
+    except KeyboardInterrupt:
         print('done')

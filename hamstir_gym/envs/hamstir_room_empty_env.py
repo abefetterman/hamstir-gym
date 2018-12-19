@@ -38,11 +38,16 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.renderer = p.ER_BULLET_HARDWARE_OPENGL # or p.ER_TINY_RENDERER
         self.maxForce = 10
         self.maxSteps = 250
+        self.multiroom = MultiRoom()
         self.seed()
         
         return
         
     def seed(self, seed=None):
+        if seed:
+            print('set seed %d' % seed)
+        else:
+            print('reset seed')
         self.np_random, seed = seeding.np_random(seed)
         if hasattr(self,'multiroom'):
             seed = self.multiroom.seed(seed)
@@ -57,7 +62,6 @@ class HamstirRoomEmptyEnv(gym.Env):
 
         self.physicsClientId = p.connect(self.connection_mode)
             
-        self.multiroom = MultiRoom()
         self.cameraProjection = p.computeProjectionMatrixFOV(fov=90.0, aspect=1.0, nearVal=0.1, farVal=10.0)
         
         if self.isRender:
@@ -79,6 +83,13 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
         self.wheel_ids = [left_wheel_id, right_wheel_id]
         
+    def _reset_camera(self):
+        # reset lighting conditions
+        self.lightXYZ = (self.np_random.uniform(size=3)*20 - 10).tolist()
+        self.lightXYZ[2] = 10
+        self.lightRGB = (self.np_random.uniform(size=3) * .5 + 0.5).tolist()
+        self.lightCoeff = self.np_random.uniform(size=3).tolist()
+        
     def reset(self):
         self._resetClient()
         
@@ -89,6 +100,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
         p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
         p.resetBaseVelocity(self.robot, [0,0,0], [0,0,0])
+        
+        self._reset_camera()
         
         self.ep_len, self.ep_reward = 0, 0.0
         
@@ -137,7 +150,10 @@ class HamstirRoomEmptyEnv(gym.Env):
         
     def _get_img(self):
         cameraView = get_camera_view(self.robot, self.camera_link_id)
-        img_params = p.getCameraImage(self.camera_width, self.camera_height, cameraView, self.cameraProjection, renderer=self.renderer)
+        img_params = p.getCameraImage(self.camera_width, self.camera_height, cameraView, self.cameraProjection, \
+                    lightDirection = self.lightXYZ, lightColor = self.lightRGB, \
+                    lightAmbientCoeff = self.lightCoeff[0], lightDiffuseCoeff = self.lightCoeff[1], \
+                    lightSpecularCoeff = self.lightCoeff[2], renderer=self.renderer)
         return img_params[2]
 
     def render(self, mode='human', close=False):
