@@ -18,12 +18,12 @@ from stable_baselines import PPO2
 best_mean_reward, n_steps = -np.inf, 0
 
 def seedPolicy(seed=None):
-class CustomPolicy(CnnPolicy):
-    def __init__(self, *args, **kwargs):
-        if seed != None:
-            set_global_seeds(seed)
-        super(CustomPolicy, self).__init__(*args, **kwargs)
-return CustomPolicy
+    class CustomPolicy(CnnPolicy):
+        def __init__(self, *args, **kwargs):
+            if seed != None:
+                set_global_seeds(seed)
+            super(CustomPolicy, self).__init__(*args, **kwargs)
+    return CustomPolicy
 
 def make_env(log_dir, rank, seed=0):
     """
