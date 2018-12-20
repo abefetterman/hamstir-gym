@@ -94,8 +94,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.lightXYZ[2] = 10
         self.lightRGB = (self.np_random.uniform(size=3) * .5 + 0.5).tolist()
         self.lightCoeff = self.np_random.uniform(size=3).tolist()
-        self.camShift = (self.np_random.uniform() - 0.5)*0.1
-        self.camFocus = (self.np_random.uniform() - 0.5)*4 + 4
+        self.camShift = (self.np_random.uniform() - 0.25)*0.05
+        self.camFocus = (self.np_random.uniform() - 0.5)*2 + 4
         
     def reset(self):
         self._resetClient()
@@ -162,7 +162,7 @@ class HamstirRoomEmptyEnv(gym.Env):
                     lightAmbientCoeff = self.lightCoeff[0], lightDiffuseCoeff = self.lightCoeff[1], \
                     lightSpecularCoeff = self.lightCoeff[2], renderer=self.renderer)
         img = img_params[2][...,:self.colors]
-        img = ndimage.gaussian_filter(img, sigma=3)
+        img = ndimage.gaussian_filter(img, sigma=(1,1,0))
         return img
 
     def render(self, mode='human', close=False):
