@@ -26,12 +26,12 @@ class HamstirRoomEmptyEnv(gym.Env):
             self.action_space = spaces.Box(-1,1,(2,),dtype=np.float32)
             self.actions = None
             
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.camera_height, self.camera_width, 4), dtype=np.uint8) # returns RGBA
+        self.observation_space = spaces.Box(low=0, high=255, shape=(self.camera_height, self.camera_width, 3), dtype=np.uint8) # returns RGB
         
         self.physicsClientId = -1
         self.ownsPhysicsClient = False
         self.isRender = render
-        self.connection_mode = p.GUI if render else p.DIRECT
+        self.connection_mode = p.GUI # if render else p.DIRECT
         self.room = None
         self.robot = None
         self.step_ratio = step_ratio # render timesteps / step(); render tstep = 1/240 sec
@@ -67,6 +67,9 @@ class HamstirRoomEmptyEnv(gym.Env):
         if self.isRender:
             p.configureDebugVisualizer(p.COV_ENABLE_GUI,1)
             p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
+        else:
+            p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+            p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
     
         p.setGravity(0,0,-9.81)
         p.setPhysicsEngineParameter(fixedTimeStep=0.01)
@@ -154,7 +157,7 @@ class HamstirRoomEmptyEnv(gym.Env):
                     lightDirection = self.lightXYZ, lightColor = self.lightRGB, \
                     lightAmbientCoeff = self.lightCoeff[0], lightDiffuseCoeff = self.lightCoeff[1], \
                     lightSpecularCoeff = self.lightCoeff[2], renderer=self.renderer)
-        return img_params[2]
+        return img_params[2][...,:3]
 
     def render(self, mode='human', close=False):
 

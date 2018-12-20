@@ -55,7 +55,7 @@ class HamstirGibsonEnv(CameraRobotEnv):
         self.electricity_cost = 0
         self.stall_torque_cost = -0.01
         self.wall_collision_cost = -1.0
-        self.collision_penalty = -1000.0
+        self.collision_penalty = -10.0
         self.has_collided = 0
 
 
@@ -86,7 +86,7 @@ class HamstirGibsonEnv(CameraRobotEnv):
         directed_progress = progress if steering_cost == 0 else steering_cost
 
         wall_contact = [pt for pt in self.robot.parts['base_link'].contact_list() if pt[6][2] < 0.15]
-        self.has_collided = 1 if (self.has_collided or len(wall_contact) > 0) else 0
+        self.has_collided = 1 if len(wall_contact) > 0 else 0
         wall_collision_cost = self.collision_penalty * self.has_collided
 
         joints_at_limit_cost = float(self.joints_at_limit_cost * self.robot.joints_at_limit)
@@ -123,7 +123,7 @@ class HamstirGibsonEnv(CameraRobotEnv):
         pitch = self.robot.get_rpy()[1]
         alive = float(self.robot.alive_bonus(height, pitch))
 
-        done = self.has_collided or not alive or self.nframe > 250 or height < 0
+        done = not alive or self.nframe > 250 or height < 0
         #if done:
         #    print("Episode reset")
         return done

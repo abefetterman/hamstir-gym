@@ -6,6 +6,7 @@ import gym
 import numpy as np
 import matplotlib.pyplot as plt
 
+from stable_baselines.common.policies import CnnPolicy
 from stable_baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines import PPO2
 
@@ -21,7 +22,7 @@ if __name__ == '__main__':
     env = HamstirGibsonEnv(config=args.config)
     env = DummyVecEnv([lambda: env])
     
-    model = PPO2.load(args.model)
+    model = PPO2.load(args.model, policy=CnnPolicy)
     
     alpha = np.ones((1,128,128,1),dtype=np.int32) * 255
     obs = env.reset()
