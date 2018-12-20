@@ -5,8 +5,8 @@ import numpy as np
 
 DATA_DIR = osp.join(osp.abspath(osp.dirname(__file__)),'data/')
 DATA_ROOMS = [
-    # "/room6x6.urdf",
-    # "/room2x12.urdf",
+    # "/room6x6.urdf"
+    #"/room2x12.urdf"
     "/room12x12mesh.urdf"
 ]
 
@@ -34,8 +34,9 @@ def find_links(car):
             left_wheel_id = joint
     return camera_link_id, left_wheel_id, right_wheel_id
     
-def get_camera_view(car, camera_link_id, cameraFocusVec=(4,0,0), cameraUpVec=(0,0,1)):
+def get_camera_view(car, camera_link_id, cameraFocusVec=(4,0,0), cameraUpVec=(0,0,1), verticalShift = 0.0):
     camPos, camOrient = p.getLinkState(car, camera_link_id, computeForwardKinematics=True)[4:6]
+    camPos = (camPos[0],camPos[1],camPos[2]+verticalShift)
     camQ = Quaternion(camOrient[-1:]+camOrient[:3])
     focusPos = [a+b for a,b in zip(camPos, camQ.rotate(cameraFocusVec))]
     return p.computeViewMatrix(camPos, focusPos, camQ.rotate(cameraUpVec))

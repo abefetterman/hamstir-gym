@@ -2,6 +2,7 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
+from scipy import ndimage
 import pybullet as p
 from hamstir_gym.utils import *
 from hamstir_gym.multiroom import MultiRoom
@@ -9,7 +10,7 @@ from hamstir_gym.multiroom import MultiRoom
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=False, step_ratio=25, discrete=False):
+    def __init__(self, render=False, step_ratio=25, discrete=False, colors=3):
         
         self.camera_height, self.camera_width = 128,128
         self.vel_mult = 10.0
@@ -26,7 +27,8 @@ class HamstirRoomEmptyEnv(gym.Env):
             self.action_space = spaces.Box(-1,1,(2,),dtype=np.float32)
             self.actions = None
             
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.camera_height, self.camera_width, 3), dtype=np.uint8) # returns RGB
+        self.colors = colors
+        self.observation_space = spaces.Box(low=0, high=255, shape=(self.camera_height, self.camera_width, colors), dtype=np.uint8) # returns RGB
         
         self.physicsClientId = -1
         self.ownsPhysicsClient = False
@@ -92,6 +94,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.lightXYZ[2] = 10
         self.lightRGB = (self.np_random.uniform(size=3) * .5 + 0.5).tolist()
         self.lightCoeff = self.np_random.uniform(size=3).tolist()
+        self.camShift = (self.np_random.uniform() - 0.5)*0.1
+        self.camFocus = (self.np_random.uniform() - 0.5)*4 + 4
         
     def reset(self):
         self._resetClient()
@@ -152,12 +156,14 @@ class HamstirRoomEmptyEnv(gym.Env):
         return img_arr, reward, done, {'episode': { 'r': self.ep_reward, 'l': self.ep_len }}
         
     def _get_img(self):
-        cameraView = get_camera_view(self.robot, self.camera_link_id)
+        cameraView = get_camera_view(self.robot, self.camera_link_id, cameraFocusVec=(self.camFocus, 0, 0), verticalShift=self.camShift)
         img_params = p.getCameraImage(self.camera_width, self.camera_height, cameraView, self.cameraProjection, \
                     lightDirection = self.lightXYZ, lightColor = self.lightRGB, \
                     lightAmbientCoeff = self.lightCoeff[0], lightDiffuseCoeff = self.lightCoeff[1], \
                     lightSpecularCoeff = self.lightCoeff[2], renderer=self.renderer)
-        return img_params[2][...,:3]
+        img = img_params[2][...,:self.colors]
+        img = ndimage.gaussian_filter(img, sigma=3)
+        return img
 
     def render(self, mode='human', close=False):
 
