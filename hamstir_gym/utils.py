@@ -6,18 +6,21 @@ import numpy as np
 DATA_DIR = osp.join(osp.abspath(osp.dirname(__file__)),'data/')
 DATA_ROOMS = [
     # "/room6x6.urdf"
-    #"/room2x12.urdf"
-    "/room12x12mesh.urdf"
+    "/room2x12.urdf"
+    #"/room12x12e.urdf"
 ]
 
 def getWallDistance(wall_obj,ref_obj, maxDistance = 1.0):
-    closest = p.getClosestPoints(wall_obj,ref_obj,maxDistance)
+    if type(wall_obj) == int:
+        wall_obj = [wall_obj]
     distance = maxDistance
-    for point in closest:
-        if point[3] != -1:
-            # [3] is linkIndexA, ignore the floor
-            distance = min(distance, point[8])
-    return distance
+    # for obj in wall_obj:
+    #     closest = p.getClosestPoints(obj,ref_obj,maxDistance)
+    #     for point in closest:
+    #         if point[3] != -1:
+    #             # [3] is linkIndexA, ignore the floor
+    #             distance = min(distance, point[8])
+    return maxDistance
 
 def find_links(car):
     num_joints = p.getNumJoints(car)

@@ -102,7 +102,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         self.multiroom.reset()
         
-        cubeStartPos = [0,2,.2]
+        # cubeStartPos = [0,2,.2]
+        cubeStartPos = [0,0,.2]
         cubeStartAngle = self.np_random.uniform()*2*np.math.pi - np.math.pi
         cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
         p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
@@ -162,7 +163,7 @@ class HamstirRoomEmptyEnv(gym.Env):
                     lightAmbientCoeff = self.lightCoeff[0], lightDiffuseCoeff = self.lightCoeff[1], \
                     lightSpecularCoeff = self.lightCoeff[2], renderer=self.renderer)
         img = img_params[2][...,:self.colors]
-        img = ndimage.gaussian_filter(img, sigma=(1,1,0))
+        img = ndimage.gaussian_filter(img, sigma=(0.5,0.5,0))
         return img
 
     def render(self, mode='human', close=False):

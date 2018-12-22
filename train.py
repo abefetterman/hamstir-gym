@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
-from stable_baselines.common.policies import CnnPolicy
+from hamstir_gym.model import NatureLitePolicy, set_seed
 from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines.bench import Monitor
@@ -17,14 +17,6 @@ from stable_baselines import PPO2
 
 best_mean_reward, n_steps = -np.inf, 0
 
-def seedPolicy(seed=None):
-    class CustomPolicy(CnnPolicy):
-        def __init__(self, *args, **kwargs):
-            if seed != None:
-                set_global_seeds(seed)
-            super(CustomPolicy, self).__init__(*args, **kwargs)
-    return CustomPolicy
-
 def make_env(log_dir, rank, seed=0):
     """
     Utility function for multiprocessed env.
@@ -33,7 +25,7 @@ def make_env(log_dir, rank, seed=0):
     :param seed: (int) the inital seed for RNG
     :param rank: (int) index of the subprocess
     """
-    env_log_dir = os.path.join(log_dir, str(rank))
+    env_log_dir = log_dir # os.path.join(log_dir, str(rank))
     os.makedirs(env_log_dir, exist_ok=True)
     def _init():
         env = HamstirRoomEmptyEnv(render=False)
@@ -76,15 +68,16 @@ if __name__ == '__main__':
     
     # Create log dir
     log_dir = "/tmp/gym/"
-    tensorboard_dir = "~/tensorboard"
+    tensorboard_dir = "../tensorboard"
     os.makedirs(tensorboard_dir, exist_ok=True)
     
     env = DummyVecEnv([make_env(log_dir, i, args.seed) for i in range(args.ncpu)])
     
-    model = PPO2(seedPolicy(args.seed), env, verbose=1, gamma=0.95, n_steps=2000, tensorboard_log=tensorboard_dir)
+    set_seed(args.seed)
     
-    # set_global_seeds(args.seed)
-    print(model.graph.seed)
-    # print(env.config)
+    model = PPO2(NatureLitePolicy, env, verbose=1, gamma=0.95, n_steps=2000, tensorboard_log=tensorboard_dir)
+    
+    print('graph seed:', model.graph.seed)
+    model.save('./new_model.pkl')
     
     model.learn(total_timesteps=int(1e7), callback=callback, seed=args.seed)

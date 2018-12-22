@@ -24,13 +24,10 @@ if __name__ == '__main__':
     
     model = PPO2.load(args.model, policy=CnnPolicy)
     
-    alpha = np.ones((1,128,128,1),dtype=np.int32) * 255
     obs = env.reset()
-    obs = np.concatenate((obs,alpha),axis=-1)
     try:
         while True:
             action, _states = model.predict(obs)
             obs, rewards, dones, info = env.step(action/1000.0)
-            obs = np.concatenate((obs,alpha),axis=-1)
     except:
         print('done')
