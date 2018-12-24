@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
-from hamstir_gym.model import NatureLitePolicy, set_seed
+from hamstir_gym.model import NatureLitePolicy, MobilenetPolicy, set_seed
 from stable_baselines.common.vec_env import SubprocVecEnv
 from stable_baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from stable_baselines.bench import Monitor
@@ -28,7 +28,7 @@ def make_env(log_dir, rank, seed=0):
     env_log_dir = log_dir # os.path.join(log_dir, str(rank))
     os.makedirs(env_log_dir, exist_ok=True)
     def _init():
-        env = HamstirRoomEmptyEnv(render=True)
+        env = HamstirRoomEmptyEnv(render=False, dim=160)
         if seed != None:
             env.seed(seed + rank)
         env = Monitor(env, env_log_dir, allow_early_resets=True)
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     
     set_seed(args.seed)
     
-    model = PPO2(NatureLitePolicy, env, verbose=1, gamma=0.95, n_steps=2000, tensorboard_log=tensorboard_dir)
+    model = PPO2(MobilenetPolicy, env, verbose=1, gamma=0.95, n_steps=2000, tensorboard_log=tensorboard_dir)
     
     print('graph seed:', model.graph.seed)
     model.save('./models/new_model.pkl')

@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow_hub as hub
 import numpy as np
 from stable_baselines.a2c.utils import conv, linear, conv_to_fc, batch_to_seq, seq_to_batch, lstm
 
@@ -7,6 +8,13 @@ from stable_baselines.common import set_global_seeds
 
 seed = None
 
+default_module_url = "https://tfhub.dev/google/imagenet/mobilenet_v1_050_160/feature_vector/1"
+ 
+def hub_module(scaled_images, module_url=default_module_url, **kwargs):
+    activ = tf.nn.relu
+    module = hub.Module(module_url)
+    features = module(scaled_images)
+    return activ(linear(features, 'fc', n_hidden=512, init_scale=np.sqrt(2)))
 
 def nature_cnn_lite(scaled_images, **kwargs):
     """
@@ -30,6 +38,16 @@ class NatureLitePolicy(FeedForwardPolicy):
         if seed != None:
             set_global_seeds(seed)
         super(NatureLitePolicy, self).__init__(*args, cnn_extractor=nature_cnn_lite,
+            **kwargs)
+
+
+class MobilenetPolicy(FeedForwardPolicy):
+    def __init__(self, *args, **kwargs):
+        global seed
+        # we need to set seed here, once we are in the graph
+        if seed != None:
+            set_global_seeds(seed)
+        super(MobilenetPolicy, self).__init__(*args, cnn_extractor=hub_module,
             **kwargs)
 
 def set_seed(new_seed=None):

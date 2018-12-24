@@ -232,4 +232,28 @@
     <child link="nw_col_link"/>
     <origin xyz="-2 2 0" rpy="0 0 0"/>
   </joint>
+  <link name="ceiling_link">
+    <visual>
+      <geometry>
+        <box size="12 12 0.01"/>
+      </geometry>
+      <origin xyz="0 0 3" rpy="0 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="12 12 0.01"/>
+      </geometry>
+      <origin xyz="0 0 3" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="3888"/>
+      <inertia ixx="46656.0324" ixy="0" ixz="0" iyy="46656.0324" iyz="0" izz="93312"/>
+      <origin xyz="0 0 3" rpy="0 0 0"/>
+    </inertial>
+  </link>
+  <joint name="ceiling_joint" type="fixed">
+    <parent link="floor_link"/>
+    <child link="ceiling_link"/>
+  </joint>
 </robot>

@@ -10,9 +10,9 @@ from hamstir_gym.multiroom import MultiRoom
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=False, step_ratio=25, discrete=False, colors=3):
+    def __init__(self, render=False, step_ratio=25, dim=128, discrete=False, colors=3):
         
-        self.camera_height, self.camera_width = 128,128
+        self.camera_height, self.camera_width = dim,dim
         self.vel_mult = 10.0
         
         if discrete:
