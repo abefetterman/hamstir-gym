@@ -28,7 +28,7 @@ def make_env(log_dir, rank, seed=0):
     env_log_dir = log_dir # os.path.join(log_dir, str(rank))
     os.makedirs(env_log_dir, exist_ok=True)
     def _init():
-        env = HamstirRoomEmptyEnv(render=False)
+        env = HamstirRoomEmptyEnv(render=True)
         if seed != None:
             env.seed(seed + rank)
         env = Monitor(env, env_log_dir, allow_early_resets=True)
@@ -78,6 +78,6 @@ if __name__ == '__main__':
     model = PPO2(NatureLitePolicy, env, verbose=1, gamma=0.95, n_steps=2000, tensorboard_log=tensorboard_dir)
     
     print('graph seed:', model.graph.seed)
-    model.save('./new_model.pkl')
+    model.save('./models/new_model.pkl')
     
     model.learn(total_timesteps=int(1e7), callback=callback, seed=args.seed)

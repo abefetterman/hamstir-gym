@@ -102,8 +102,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         self.multiroom.reset()
         
-        # cubeStartPos = [0,2,.2]
-        cubeStartPos = [0,0,.2]
+        cubeStartPos = [0,2,.2]
+        # cubeStartPos = [0,0,.2]
         cubeStartAngle = self.np_random.uniform()*2*np.math.pi - np.math.pi
         cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
         p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)

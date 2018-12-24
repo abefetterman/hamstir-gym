@@ -22,6 +22,6 @@ if __name__ == '__main__':
     
     with tf.gfile.FastGFile(args.graph_out, 'wb') as f:
         f.write(output_graph_def.SerializeToString())
-        
-    train_saver = tf.train.Saver(model.params)
-    train_saver.save(sess, './check.out')
+    # 
+    # train_saver = tf.train.Saver(model.params)
+    # train_saver.save(sess, './check.out')
