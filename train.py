@@ -28,7 +28,7 @@ def make_env(log_dir, rank, seed=0):
     env_log_dir = log_dir # os.path.join(log_dir, str(rank))
     os.makedirs(env_log_dir, exist_ok=True)
     def _init():
-        env = HamstirRoomEmptyEnv(render=False, dim=160)
+        env = HamstirRoomEmptyEnv(render=False, dim=192)
         if seed != None:
             env.seed(seed + rank)
         env = Monitor(env, env_log_dir, allow_early_resets=True)

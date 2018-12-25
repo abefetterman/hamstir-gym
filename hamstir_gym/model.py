@@ -8,11 +8,12 @@ from stable_baselines.common import set_global_seeds
 
 seed = None
 
-default_module_url = "https://tfhub.dev/google/imagenet/mobilenet_v1_050_160/feature_vector/1"
- 
+#default_module_url = "https://tfhub.dev/google/imagenet/mobilenet_v1_050_160/feature_vector/1"
+default_module_url = "https://tfhub.dev/google/imagenet/mobilenet_v2_100_192/feature_vector/2"
+
 def hub_module(scaled_images, module_url=default_module_url, **kwargs):
     activ = tf.nn.relu
-    module = hub.Module(module_url)
+    module = hub.Module(module_url) #, trainable=True)
     features = module(scaled_images)
     return activ(linear(features, 'fc', n_hidden=512, init_scale=np.sqrt(2)))
 
