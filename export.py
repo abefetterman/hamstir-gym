@@ -13,7 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('--check_out', type=str)
     args = parser.parse_args()
     
-    model = PPO2.load(args.model, policy=MobilenetPolicy)
+    model = PPO2.load(args.model, policy=NatureLitePolicy)
     sess = model.sess
     graph = sess.graph
     
