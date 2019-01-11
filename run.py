@@ -38,7 +38,8 @@ if __name__ == '__main__':
         while True:
             action, _states = model.predict(obs, deterministic=True)
             # print(action, sess.run(input, feed_dict={model.act_model.obs_ph:obs}))
-            print(action, sess.run(output, feed_dict={input:obs}))
+            # print(action, sess.run(output, feed_dict={input:obs}))
             obs, rewards, dones, info = env.step(action)
+            print(sum(rewards),action, dones)
     except KeyboardInterrupt:
         print('done')

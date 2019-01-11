@@ -41,6 +41,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.maxForce = 10
         self.maxSteps = 250
         self.multiroom = MultiRoom()
+        self.bufferWallDistance = 0.4
         self.seed()
         
         return
@@ -95,7 +96,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.lightRGB = (self.np_random.uniform(size=3) * .5 + 0.5).tolist()
         self.lightCoeff = self.np_random.uniform(size=3).tolist()
         self.camShift = (self.np_random.uniform() - 0.25)*0.05
-        self.camFocus = (self.np_random.uniform() - 0.5)*2 + 4
+        self.camFocus = 0.15 # (self.np_random.uniform() - 0.05)*1 + .1
         
     def reset(self):
         self._resetClient()
@@ -133,7 +134,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         endPosition,_ = p.getBasePositionAndOrientation(self.robot)
         travelDistance2 = sum([(x-y)*(x-y) for x,y in zip(startPosition,endPosition)])
         
-        wallDistance = getWallDistance(self.multiroom.active_room(), self.robot)
+        wallDistance = getWallDistance(self.multiroom.active_room(), self.robot, self.bufferWallDistance)
         
         done = False
         reward = 0
@@ -141,12 +142,13 @@ class HamstirRoomEmptyEnv(gym.Env):
             # add travel distance only if moving forward
             reward += 10 * np.sqrt(travelDistance2)
             
-        if wallDistance < 0.01:
+            
+        if wallDistance < 0.05:
             done=True
             reward = -500
-        elif wallDistance < .1:
+        elif wallDistance < self.bufferWallDistance:
             # penalty for being close to the wall
-            reward -= 1e3 * ((.1-wallDistance) ** 2)
+            reward -= 100 * ((self.bufferWallDistance-wallDistance) ** 2)
             # pass
             
         self.ep_len += 1

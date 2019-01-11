@@ -10,17 +10,17 @@ DATA_ROOMS = [
     "/room12x12.urdf"
 ]
 
-def getWallDistance(wall_obj,ref_obj, maxDistance = 1.0):
+def getWallDistance(wall_obj,ref_obj, maxDistance = 0.4):
     if type(wall_obj) == int:
         wall_obj = [wall_obj]
     distance = maxDistance
-    # for obj in wall_obj:
-    #     closest = p.getClosestPoints(obj,ref_obj,maxDistance)
-    #     for point in closest:
-    #         if point[3] != -1:
-    #             # [3] is linkIndexA, ignore the floor
-    #             distance = min(distance, point[8])
-    return maxDistance
+    for obj in wall_obj:
+        closest = p.getClosestPoints(obj,ref_obj,maxDistance)
+        for point in closest:
+            if point[3] != -1:
+                # [3] is linkIndexA, ignore the floor
+                distance = min(distance, point[8])
+    return distance
 
 def find_links(car):
     num_joints = p.getNumJoints(car)

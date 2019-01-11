@@ -75,7 +75,7 @@ if __name__ == '__main__':
     
     set_seed(args.seed)
     
-    model = PPO2(MobilenetPolicy, env, verbose=1, gamma=0.95, n_steps=2000, tensorboard_log=tensorboard_dir)
+    model = PPO2(MobilenetPolicy, env, verbose=1, gamma=0.99, n_steps=2000, tensorboard_log=tensorboard_dir)
     
     print('graph seed:', model.graph.seed)
     # model.save('./models/new_model.pkl')
