@@ -6,7 +6,7 @@ import argparse
 import numpy as np
 
 tf.reset_default_graph()
-with tf.gfile.GFile('./models/graph.pb', 'rb') as f:
+with tf.gfile.GFile('../models/graph.pb', 'rb') as f:
    graph_def = tf.GraphDef()
    graph_def.ParseFromString(f.read())
 

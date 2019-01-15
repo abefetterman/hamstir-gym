@@ -68,7 +68,7 @@ if __name__ == '__main__':
     
     # Create log dir
     log_dir = "/tmp/gym/"
-    tensorboard_dir = "../tensorboard"
+    tensorboard_dir = "../../tensorboard"
     os.makedirs(tensorboard_dir, exist_ok=True)
     
     env = DummyVecEnv([make_env(log_dir, i, args.seed) for i in range(args.ncpu)])
@@ -78,6 +78,6 @@ if __name__ == '__main__':
     model = PPO2(NatureLitePolicy, env, verbose=1, gamma=0.99, n_steps=2000, tensorboard_log=tensorboard_dir)
     
     print('graph seed:', model.graph.seed)
-    model.save('./models/new_model.pkl')
+    model.save('../models/new_model.pkl')
     
     model.learn(total_timesteps=int(1e7), callback=callback, seed=args.seed)
