@@ -16,7 +16,8 @@ with tf.Session(graph=G) as sess:
     result = tf.import_graph_def(graph_def, return_elements=['model/pi/add:0'])
     # print('Operations in Optimized Graph:')
     # print([op.name for op in G.get_operations()]) 
-    input = G.get_tensor_by_name('import/model/module_apply_default/hub_input/Sub:0')
+    # input = G.get_tensor_by_name('import/model/module_apply_default/hub_input/Sub:0')
+    input = G.get_tensor_by_name('import/input/truediv:0')
     output = G.get_tensor_by_name('import/model/pi/add:0')
     
     image = Image.open('./models/raspi1.jpg')

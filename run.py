@@ -27,11 +27,11 @@ if __name__ == '__main__':
     env.seed(args.seed)
     env = DummyVecEnv([lambda: env])
     
-    model = PPO2.load(args.model, policy=MobilenetPolicy)
+    model = PPO2.load(args.model, policy=NatureLitePolicy)
     sess = model.sess
     graph = sess.graph
-    input = graph.get_tensor_by_name('model/module_apply_default/hub_input/Sub:0')
-    output = graph.get_tensor_by_name('model/pi/add:0')
+    # input = graph.get_tensor_by_name('model/module_apply_default/hub_input/Sub:0')
+    # output = graph.get_tensor_by_name('model/pi/add:0')
     
     obs = env.reset()
     try:

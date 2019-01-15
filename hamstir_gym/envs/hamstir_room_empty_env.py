@@ -65,7 +65,7 @@ class HamstirRoomEmptyEnv(gym.Env):
 
         self.physicsClientId = p.connect(self.connection_mode)
             
-        self.cameraProjection = p.computeProjectionMatrixFOV(fov=90.0, aspect=1.0, nearVal=0.1, farVal=10.0)
+        self.cameraProjection = p.computeProjectionMatrixFOV(fov=48.8, aspect=1.0, nearVal=0.05, farVal=20.0)
         
         if self.isRender:
             p.configureDebugVisualizer(p.COV_ENABLE_GUI,1)
