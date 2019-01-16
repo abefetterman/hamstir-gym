@@ -62,7 +62,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         
     def _resetClient(self):
         if (self.physicsClientId>=0):
-            # p.resetSimulation()
+            p.resetSimulation()
             return
             
         self.ownsPhysicsClient = True
@@ -76,6 +76,7 @@ class HamstirRoomEmptyEnv(gym.Env):
             p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
             p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
     
+    def _loadSimulation(self):
         p.setGravity(0,0,-9.81)
         p.setPhysicsEngineParameter(fixedTimeStep=0.01)
         
@@ -93,6 +94,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         
     def reset(self):
         self._resetClient()
+        
+        self._loadSimulation()
         
         self.multiroom.reset()
         
