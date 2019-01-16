@@ -16,6 +16,11 @@ dependencies are light:
 The `pybullet` environment makes use of texture and camera randomization to allow
 sim-to-real transfer. Whether this is successful is yet to be shown.
 
+For the Gibson testing environment, of course, `GibsonEnv` must be installed with 
+its dependencies. The best way to do this is with Docker, and this project includes
+a customized docker configuration that will include dependencies for this project
+as well as the original `GibsonEnv`.
+
 ##  Environments
 
 The training environment is `HamstirRoomEmptyEnv`, which is a 

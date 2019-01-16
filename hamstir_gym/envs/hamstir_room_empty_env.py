@@ -6,13 +6,14 @@ from scipy import ndimage
 import pybullet as p
 from hamstir_gym.utils import *
 from hamstir_gym.multiroom import MultiRoom
+from hamstir_gym.camera import Camera
 
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
     def __init__(self, render=False, step_ratio=25, dim=128, discrete=False, colors=3):
         
-        self.camera_height, self.camera_width = dim,dim
+        self.dim = dim
         self.vel_mult = 10.0
         
         if discrete:
@@ -28,7 +29,7 @@ class HamstirRoomEmptyEnv(gym.Env):
             self.actions = None
             
         self.colors = colors
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.camera_height, self.camera_width, colors), dtype=np.uint8) # returns RGB
+        self.observation_space = spaces.Box(low=0, high=255, shape=(dim, dim, colors), dtype=np.uint8) # returns RGB
         
         self.physicsClientId = -1
         self.ownsPhysicsClient = False
@@ -41,6 +42,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.maxForce = 10
         self.maxSteps = 250
         self.multiroom = MultiRoom()
+        self.camera = Camera(dim, dim, colors)
         self.bufferWallDistance = 0.4
         self.seed()
         
@@ -54,6 +56,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.np_random, seed = seeding.np_random(seed)
         if hasattr(self,'multiroom'):
             seed = self.multiroom.seed(seed)
+        if hasattr(self,'camera'):
+            seed = self.camera.seed(seed)
         return [seed]
         
     def _resetClient(self):
@@ -65,8 +69,6 @@ class HamstirRoomEmptyEnv(gym.Env):
 
         self.physicsClientId = p.connect(self.connection_mode)
             
-        self.cameraProjection = p.computeProjectionMatrixFOV(fov=48.8, aspect=1.0, nearVal=0.05, farVal=20.0)
-        
         if self.isRender:
             p.configureDebugVisualizer(p.COV_ENABLE_GUI,1)
             p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
@@ -89,15 +91,6 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
         self.wheel_ids = [left_wheel_id, right_wheel_id]
         
-    def _reset_camera(self):
-        # reset lighting conditions
-        self.lightXYZ = (self.np_random.uniform(size=3)*20 - 10).tolist()
-        self.lightXYZ[2] = 10
-        self.lightRGB = (self.np_random.uniform(size=3) * .5 + 0.5).tolist()
-        self.lightCoeff = self.np_random.uniform(size=3).tolist()
-        self.camShift = (self.np_random.uniform() - 0.25)*0.05
-        self.camFocus = 0.15 # (self.np_random.uniform() - 0.05)*1 + .1
-        
     def reset(self):
         self._resetClient()
         
@@ -110,7 +103,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
         p.resetBaseVelocity(self.robot, [0,0,0], [0,0,0])
         
-        self._reset_camera()
+        self.camera.reset()
         
         self.ep_len, self.ep_reward = 0, 0.0
         
@@ -159,14 +152,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         return img_arr, reward, done, {'episode': { 'r': self.ep_reward, 'l': self.ep_len }}
         
     def _get_img(self):
-        cameraView = get_camera_view(self.robot, self.camera_link_id, cameraFocusVec=(self.camFocus, 0, 0), verticalShift=self.camShift)
-        img_params = p.getCameraImage(self.camera_width, self.camera_height, cameraView, self.cameraProjection, \
-                    lightDirection = self.lightXYZ, lightColor = self.lightRGB, \
-                    lightAmbientCoeff = self.lightCoeff[0], lightDiffuseCoeff = self.lightCoeff[1], \
-                    lightSpecularCoeff = self.lightCoeff[2], renderer=self.renderer)
-        img = img_params[2][...,:self.colors]
-        img = ndimage.gaussian_filter(img, sigma=(0.5,0.5,0))
-        return img
+        return self.camera.getImage(self.robot, self.camera_link_id, self.renderer)
 
     def render(self, mode='human', close=False):
 

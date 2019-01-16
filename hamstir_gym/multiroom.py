@@ -17,7 +17,7 @@ class MultiRoom:
         self.np_random, seed = seeding.np_random(seed)
         if hasattr(self,'modder'):
             seed = self.modder.seed(seed)
-        return [seed]
+        return seed
         
     def load(self, physicsClient):
         self._p = physicsClient
