@@ -44,6 +44,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.multiroom = MultiRoom()
         self.camera = Camera(dim, dim, colors)
         self.bufferWallDistance = 0.4
+        self.videoFile = None
         self.seed()
         
         return
@@ -75,6 +76,14 @@ class HamstirRoomEmptyEnv(gym.Env):
         else:
             p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
             p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,0)
+            
+        if self.videoFile:
+            p.configureDebugVisualizer(p.COV_ENABLE_GUI,0)
+            p.configureDebugVisualizer(p.COV_ENABLE_RENDERING,1)
+            # p.configureDebugVisualizer(p.COV_ENABLE_RGB_BUFFER_PREVIEW,1)
+            # p.configureDebugVisualizer(p.COV_ENABLE_DEPTH_BUFFER_PREVIEW,0)
+            # p.configureDebugVisualizer(p.COV_ENABLE_SEGMENTATION_MARK_PREVIEW,0)
+            p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, self.videoFile)
     
     def _loadSimulation(self):
         p.setGravity(0,0,-9.81)
@@ -160,3 +169,7 @@ class HamstirRoomEmptyEnv(gym.Env):
     def render(self, mode='human', close=False):
 
         return self._get_img()
+        
+    def logVideo(self,filename):
+        self.videoFile = filename
+        

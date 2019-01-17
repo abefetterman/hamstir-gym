@@ -4,6 +4,12 @@ The goal of this project is to create a simple robot guided by a monocular camer
 that can be trained end-to-end in simulation using reinforcement learning. This 
 project is in early development, so not everything works yet ;) 
 
+We lean heavily on domain randomization, with three rooms with random texture walls.
+See a demo of a trained policy in one room (birds eye view on left, robot-eye view
+  on right):
+
+![PPO2 Policy Demo](https://github.com/abefetterman/hamstir-gym/raw/master/images/train_demo.gif "PPO2 Policy Demo")
+
 ## Dependencies
 
 Compared to other robotic simulations intended for sim-to-real transfer, the
@@ -32,9 +38,9 @@ There is an additional testing environment, `HamstirGibsonEnv`, which uses the
 seems to do pybullet-to-real transfer better than pybullet-to-gibson transfer, but
 this is an area of active development.
 
-## Installing
+## Getting started
 
-Simply run:
+To install, simply run:
 
 ```
 git clone https://github.com/abefetterman/hamstir-gym
@@ -42,13 +48,25 @@ cd hamstir-gym
 pip install -e .
 ```
 
- ## References
+Start training with:
+
+```
+python3 ./examples/train.py
+``` 
+
+Then run the policy with:
+
+```
+python3 ./examples/run.py --model /tmp/gym/best_model.pkl
+```
+
+## References
  
-Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World. 
+_Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World._ 
 J Tobin, R Fong, A Ray, et. al. 
 [arXiv:1703.06907](https://arxiv.org/abs/1703.06907) (2017).
 
-CAD2RL: Real Single-Image Flight without a Single Real Image.
+_CAD2RL: Real Single-Image Flight without a Single Real Image._ 
 F Sadeghi, S Levine.
 [arXiv:1611.04201](https://arxiv.org/abs/1611.04201) (2016).
 

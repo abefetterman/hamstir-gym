@@ -21,6 +21,8 @@ class MultiRoom:
         
     def load(self, physicsClient):
         self._p = physicsClient
+        
+    def reset(self):
         i = self.np_random.randint(self.n_rooms)
         startPos = [0,0,0]
         self.room = self._p.loadURDF(self.data_dir+self.data_rooms[i], startPos, useFixedBase=1)
@@ -28,8 +30,7 @@ class MultiRoom:
         
         self.modder.load(self.room)
         
-    def reset(self):
-        self.modder.randomize()
+        # self.modder.randomize()
         return
         
     def active_room(self):

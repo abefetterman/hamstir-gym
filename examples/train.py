@@ -62,22 +62,21 @@ def callback(_locals, _globals):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--seed', type=int)
-    parser.add_argument('--ncpu', type=int, default=1)
+    parser.add_argument('--seed', type=int, help='random seed')
+    parser.add_argument('--ncpu', type=int, default=1, help='number of cpus')
+    parser.add_argument('--log_dir', type=str, default='/tmp/gym/', help='path for logs')
+    parser.add_argument('--tensorboard_dir', type=str, default='../tensorboard', help='path for tensorboard logs')
     args = parser.parse_args()
     
     # Create log dir
-    log_dir = "/tmp/gym/"
-    tensorboard_dir = "../../tensorboard"
-    os.makedirs(tensorboard_dir, exist_ok=True)
+    os.makedirs(args.tensorboard_dir, exist_ok=True)
     
-    env = DummyVecEnv([make_env(log_dir, i, args.seed) for i in range(args.ncpu)])
+    env = DummyVecEnv([make_env(args.log_dir, i, args.seed) for i in range(args.ncpu)])
     
     set_seed(args.seed)
     
-    model = PPO2(NatureLitePolicy, env, verbose=1, gamma=0.99, n_steps=2000, tensorboard_log=tensorboard_dir)
+    model = PPO2(NatureLitePolicy, env, verbose=1, gamma=0.99, n_steps=2000, tensorboard_log=args.tensorboard_dir)
     
     print('graph seed:', model.graph.seed)
-    model.save('../models/new_model.pkl')
     
     model.learn(total_timesteps=int(1e7), callback=callback, seed=args.seed)

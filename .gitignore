@@ -106,3 +106,6 @@ venv.bak/
 
 # models (too large)
 models/
+
+# videos
+*.mp4
