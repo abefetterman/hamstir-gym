@@ -60,6 +60,18 @@ Then run the policy with:
 python3 ./examples/run.py --model /tmp/gym/best_model.pkl
 ```
 
+## HamstirRoomEmptyEnv
+
+The reward in this environment is based on forward motion distance, with a penalty
+for wall collisions and wall proximity. There are three rooms, chosen randomly for
+each episode:
+
+![room6x6](https://github.com/abefetterman/hamstir-gym/raw/master/images/room6x6.png "room6x6")
+
+![room2x12](https://github.com/abefetterman/hamstir-gym/raw/master/images/room2x12.png "room6x6")
+
+![room12x12](https://github.com/abefetterman/hamstir-gym/raw/master/images/room12x12.png "room6x6")
+
 ## References
  
 _Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World._ 
