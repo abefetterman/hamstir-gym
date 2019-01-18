@@ -20,9 +20,9 @@ class Camera(object):
         self.lightRGB = (self.np_random.uniform(size=3) * .5 + 0.5).tolist()
         self.lightCoeff = self.np_random.uniform(size=3).tolist()
         self.camShift = (self.np_random.uniform() - 0.25)*0.05
-        self.camFocus = 0.15 # (self.np_random.uniform() - 0.05)*1 + .1
+        self.camFocus = (self.np_random.uniform() - 0.5)*.1 + .2
         self.upVec = (0,0,1)
-        fov = (self.np_random.uniform() - 0.5)*20 + 40
+        fov = self.np_random.uniform()*10 + 40
         self.cameraProjection = p.computeProjectionMatrixFOV(fov=fov, aspect=1.0, nearVal=0.05, farVal=20.0)
         
     def getView(self, robot, camera_link_id):
