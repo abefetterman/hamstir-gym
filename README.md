@@ -22,22 +22,6 @@ dependencies are light:
 The `pybullet` environment makes use of texture and camera randomization to allow
 sim-to-real transfer. Whether this is successful is yet to be shown.
 
-For the Gibson testing environment, of course, `GibsonEnv` must be installed with 
-its dependencies. The best way to do this is with Docker, and this project includes
-a customized docker configuration that will include dependencies for this project
-as well as the original `GibsonEnv`.
-
-##  Environments
-
-The training environment is `HamstirRoomEmptyEnv`, which is a 
-[pybullet](https://github.com/bulletphysics/bullet3) simulation in a room with 
-no objects. 
-
-There is an additional testing environment, `HamstirGibsonEnv`, which uses the 
-[Gibson](https://github.com/StanfordVL/GibsonEnv) environment. Currently, the simulation
-seems to do pybullet-to-real transfer better than pybullet-to-gibson transfer, but
-this is an area of active development.
-
 ## Getting started
 
 To install, simply run:
@@ -60,13 +44,30 @@ Then run the policy with:
 python3 ./examples/run.py --model /tmp/gym/best_model.pkl
 ```
 
-## HamstirRoomEmptyEnv
+## Environment: `HamstirRoomEmptyEnv`
 
-The reward in this environment is based on forward motion distance, with a penalty
-for wall collisions and wall proximity. There are three rooms, chosen randomly for
+This environment is designed for training the model. It simulates the robots in 
+rooms with no other objects. There are three rooms, chosen randomly for
 each episode:
 
 ![room6x6](https://github.com/abefetterman/hamstir-gym/raw/master/images/room6x6.png "room6x6") ![room2x12](https://github.com/abefetterman/hamstir-gym/raw/master/images/room2x12.png "room2x12") ![room12x12](https://github.com/abefetterman/hamstir-gym/raw/master/images/room12x12.png "room12x12")
+
+The robot is initialized in the same location (0,2) with a random orientation. Wall
+textures and camera angles are randomized for each episode.
+
+The reward in this environment is based on forward motion distance, with a penalty
+for wall collisions and wall proximity.
+
+## Environment: `HamstirGibsonEnv`
+
+This environment uses the [Gibson](https://github.com/StanfordVL/GibsonEnv) simulation. 
+Currently, the model seems to do pybullet-to-gibson transfer no better than 
+pybullet-to-real transfer, but this is an area of active development.
+
+For the Gibson testing environment, `GibsonEnv` must be installed with 
+its dependencies. The best way to do this is with Docker, and this project includes
+a customized docker configuration that will include dependencies for this project
+as well as the original `GibsonEnv`. 
 
 ## References
  
