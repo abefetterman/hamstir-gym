@@ -69,6 +69,35 @@ its dependencies. The best way to do this is with Docker, and this project inclu
 a customized docker configuration that will include dependencies for this project
 as well as the original `GibsonEnv`. 
 
+## Running inference on a robot
+
+These models are designed to be run on the 
+[AIY Vision Kit](https://aiyprojects.withgoogle.com/vision/). The process for 
+running a model is as follows:
+
+Assume you have your model saved in `./models/my_model.pkl`. Then check 
+`./examples/export.py` and make sure the policy is the same one you trained with,
+for example, `NatureLitePolicy`. Then run:
+
+```
+python3 ./examples/export.py --model ./models/my_model.pkl --graph_out ./models/graph.pb
+```
+
+The next step relies on a TensorFlow model compiler from Google that only works 
+(in my experience) on x86 Linux, so on a server or in a virtualenv, download and extract 
+[bonnet_model_compiler.par](https://dl.google.com/dl/aiyprojects/vision/bonnet_model_compiler_latest.tgz). [See Google's instructions here](https://aiyprojects.withgoogle.com/vision/#makers-guide).
+
+Then you will need the input and output graph operation names. These can be found 
+by using TensorBoard--you may need some fiddling to avoid forbidden operations 
+like division. For `NatureLitePolicy`, run:
+
+```
+./bonnet_model_compiler.par --frozen_graph_path ./graph.pb --output_graph_path outgraph.bp --input_tensor_name input/truediv --output_tensor_names model/pi/add --input_tensor_size 192
+```
+
+Then follow instructions on [hamstir-driver](https://github.com/abefetterman/hamstir-driver)
+to run inference on the RPi-Zero of the AIY kit.
+
 ## References
  
 _Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World._ 

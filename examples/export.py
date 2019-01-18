@@ -10,7 +10,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str)
     parser.add_argument('--graph_out', type=str)
-    parser.add_argument('--check_out', type=str)
     args = parser.parse_args()
     
     model = PPO2.load(args.model, policy=NatureLitePolicy)
