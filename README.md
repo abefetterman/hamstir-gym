@@ -72,8 +72,9 @@ as well as the original `GibsonEnv`.
 ## Running inference on a robot
 
 These models are designed to be run on the 
-[AIY Vision Kit](https://aiyprojects.withgoogle.com/vision/). The process for 
-running a model is as follows:
+[AIY Vision Kit](https://aiyprojects.withgoogle.com/vision/). The frame rate for 
+Mobilenet-V2 has been around 7 fps--pretty good throughput for this little guy! 
+The process for running a model is as follows:
 
 Assume you have your model saved in `./models/my_model.pkl`. Then check 
 `./examples/export.py` and make sure the policy is the same one you trained with,
@@ -96,7 +97,11 @@ like division. For `NatureLitePolicy`, run:
 ```
 
 Then follow instructions on [hamstir-driver](https://github.com/abefetterman/hamstir-driver)
-to run inference on the RPi-Zero of the AIY kit.
+to run inference on the RPi-Zero of the AIY kit. 
+
+## Research notes
+
+Ongoing research notes are available in [NOTES.md](./NOTES.md)
 
 ## References
  

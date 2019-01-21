@@ -66,6 +66,7 @@ if __name__ == '__main__':
     parser.add_argument('--ncpu', type=int, default=1, help='number of cpus')
     parser.add_argument('--log_dir', type=str, default='/tmp/gym/', help='path for logs')
     parser.add_argument('--tensorboard_dir', type=str, default='../tensorboard', help='path for tensorboard logs')
+    parser.add_argument('--load_model', type=str, help='load a model to continue training')
     args = parser.parse_args()
     
     # Create log dir
@@ -76,6 +77,8 @@ if __name__ == '__main__':
     set_seed(args.seed)
     
     model = PPO2(NatureLitePolicy, env, verbose=1, gamma=0.99, n_steps=2000, tensorboard_log=args.tensorboard_dir)
+    if args.load_model:
+        model = PPO2.load(args.load_model, policy=NatureLitePolicy)
     
     print('graph seed:', model.graph.seed)
     

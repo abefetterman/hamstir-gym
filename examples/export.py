@@ -16,7 +16,7 @@ if __name__ == '__main__':
     sess = model.sess
     graph = sess.graph
     
-    output_graph_def = tf.graph_util.convert_variables_to_constants( \
+    output_graph_def = tf.graph_util.convert_variables_to_constants( 
       sess, graph.as_graph_def(), ['model/pi/add'])
     
     with tf.gfile.FastGFile(args.graph_out, 'wb') as f:
