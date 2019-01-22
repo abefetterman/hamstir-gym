@@ -8,3 +8,6 @@ look into next. Will also discretize action choices to fwd-left, straight,
 fwd-right, then we can just do classification on these three actions.
 
 Mobilenet model is only retraining the top layer now. Should retrain all layers.
+
+Should also try adding stop-start cycle to driver -- spinning or moving may be 
+creating a blur.
