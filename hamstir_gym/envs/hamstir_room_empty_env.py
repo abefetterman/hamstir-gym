@@ -15,17 +15,16 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         self.dim = dim
         self.vel_mult = 10.0
+        self.vel_high = 1.0
+        self.vel_low = 0.5
         
         if discrete:
-            self.action_space = spaces.Discrete(5)
-            self.vel = 0.5
-            self.actions = [[self.vel, self.vel],
-                                [-self.vel, -self.vel],
-                                [self.vel, -self.vel],
-                                [-self.vel, self.vel],
-                                [0, 0]]
+            self.action_space = spaces.Discrete(3)
+            self.actions = [[self.vel_high, self.vel_high],
+                                [self.vel_low, self.vel_high],
+                                [self.vel_high, self.vel_low]]
         else:
-            self.action_space = spaces.Box(-1,1,(2,),dtype=np.float32)
+            self.action_space = spaces.Box(self.vel_low,self.vel_high,(2,),dtype=np.float32)
             self.actions = None
             
         self.colors = colors
@@ -128,7 +127,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         wheel_speeds = self.actions[action] if self.actions else action
         for wheel, vel in zip(self.wheel_ids, wheel_speeds):
             # presumably targetVelocity is in radians/second, force is in N-m -- unverified
-            vel = np.clip(vel, -1.0, 1.0)
+            vel = np.clip(vel, self.vel_low, self.vel_high)
             p.setJointMotorControl2(self.robot, wheel, p.VELOCITY_CONTROL, targetVelocity=vel*self.vel_mult, force=self.maxForce)
 
         for _ in range(self.step_ratio):
@@ -143,18 +142,18 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         done = False
         reward = 0
-        if all([s>0 for s in wheel_speeds]):
-            # add travel distance only if moving forward
-            reward += 10 * np.sqrt(travelDistance2)
+        # if all([s>0 for s in wheel_speeds]):
+        #     # add travel distance only if moving forward
+        #     reward += 10 * np.sqrt(travelDistance2)
             
             
         if wallDistance < 0.05:
             done=True
             reward = -500
-        elif wallDistance < self.bufferWallDistance:
-            # penalty for being close to the wall
-            reward -= 100 * ((self.bufferWallDistance-wallDistance) ** 2)
-            # pass
+        # elif wallDistance < self.bufferWallDistance:
+        #     # penalty for being close to the wall
+        #     reward -= 100 * ((self.bufferWallDistance-wallDistance) ** 2)
+        #     # pass
             
         self.ep_len += 1
         self.ep_reward += reward

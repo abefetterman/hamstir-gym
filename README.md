@@ -113,5 +113,6 @@ _CAD2RL: Real Single-Image Flight without a Single Real Image._
 F Sadeghi, S Levine.
 [arXiv:1611.04201](https://arxiv.org/abs/1611.04201) (2016).
 
-
-
+_Self-supervised Deep Reinforcement Learning with Generalized Computation Graphs for Robot Navigation_
+G Kahn, A Villaflor, B Ding, P Abbeel, S Levine
+[arXiv:1709.10489](https://arxiv.org/abs/1709.10489) (2017).
