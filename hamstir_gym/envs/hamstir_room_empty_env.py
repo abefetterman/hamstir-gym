@@ -39,7 +39,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.step_ratio = step_ratio # render timesteps / step(); render tstep = 1/240 sec
         self.renderer = p.ER_BULLET_HARDWARE_OPENGL # or p.ER_TINY_RENDERER
         self.maxForce = 10
-        self.maxSteps = 250
+        self.maxSteps = 50
         self.multiroom = MultiRoom()
         self.camera = Camera(dim, dim, colors)
         self.bufferWallDistance = 0.4
@@ -100,6 +100,20 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.camera_link_id, left_wheel_id, right_wheel_id = find_links(self.robot)
         self.wheel_ids = [left_wheel_id, right_wheel_id]
         
+    def _placeRobot(self):
+        self.epStartPosition = [self.np_random.uniform()*12 - 6, self.np_random.uniform()*12 - 6,.2]
+        cubeStartAngle = self.np_random.uniform()*2*np.math.pi - np.math.pi
+        cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
+        p.resetBasePositionAndOrientation(self.robot, self.epStartPosition, cubeStartOrientation)
+        p.resetBaseVelocity(self.robot, [0,0,0], [0,0,0])
+        
+        wallDistance = getWallDistance(self.multiroom.active_room(), self.robot, self.bufferWallDistance)
+        
+        if wallDistance < 0.1:
+            self._placeRobot()
+        
+        return
+        
     def reset(self):
         self._resetClient()
         
@@ -107,12 +121,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         self.multiroom.reset()
         
-        cubeStartPos = [0,2,.2]
-        # cubeStartPos = [0,0,.2]
-        cubeStartAngle = self.np_random.uniform()*2*np.math.pi - np.math.pi
-        cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
-        p.resetBasePositionAndOrientation(self.robot, cubeStartPos, cubeStartOrientation)
-        p.resetBaseVelocity(self.robot, [0,0,0], [0,0,0])
+        self._placeRobot()
         
         self.camera.reset()
         
@@ -136,7 +145,9 @@ class HamstirRoomEmptyEnv(gym.Env):
         img_arr = self._get_img()
         
         endPosition,_ = p.getBasePositionAndOrientation(self.robot)
-        travelDistance2 = sum([(x-y)*(x-y) for x,y in zip(startPosition,endPosition)])
+        travelDistance1 = sum([(x-y)*(x-y) for x,y in zip(startPosition,self.epStartPosition)])
+        travelDistance2 = sum([(x-y)*(x-y) for x,y in zip(endPosition,self.epStartPosition)])
+        
         
         wallDistance = getWallDistance(self.multiroom.active_room(), self.robot, self.bufferWallDistance)
         
@@ -145,7 +156,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         # if all([s>0 for s in wheel_speeds]):
         #     # add travel distance only if moving forward
         #     reward += 10 * np.sqrt(travelDistance2)
-            
+        reward += 10 * (np.sqrt(travelDistance2) - np.sqrt(travelDistance1))
             
         if wallDistance < 0.05:
             done=True

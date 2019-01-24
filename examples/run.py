@@ -29,11 +29,11 @@ if __name__ == '__main__':
         output = av.open(args.robot_eye_video,mode='w')
         stream = output.add_stream('mpeg4', rate=13)
         stream.pix_fmt = 'yuv420p'
-        stream.height, stream.width = 192, 192
+        stream.height, stream.width = 128, 128
     
     set_global_seeds(args.seed)
     
-    env = HamstirRoomEmptyEnv(render=True, dim=192)
+    env = HamstirRoomEmptyEnv(render=True, dim=128)
     if args.debug_video:
         env.logVideo(args.debug_video)
     env.seed(args.seed)
