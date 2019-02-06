@@ -78,7 +78,7 @@ if __name__ == '__main__':
     
     model = PPO2(NatureLitePolicy, env, verbose=1, gamma=0.99, n_steps=2000, tensorboard_log=args.tensorboard_dir)
     if args.load_model:
-        model = PPO2.load(args.load_model, policy=NatureLitePolicy)
+        model = PPO2.load(args.load_model, env, policy=NatureLitePolicy)
     
     print('graph seed:', model.graph.seed)
     
