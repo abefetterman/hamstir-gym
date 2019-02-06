@@ -29,7 +29,7 @@ class MultiRoom:
         self.modder.load(self.room)
         
     def reset(self, full_reset):
-        if self.full_reset:
+        if full_reset:
             i = self.np_random.randint(self.n_rooms)
             startPos = [0,0,0]
             self.room = self._p.loadURDF(self.data_dir+self.data_rooms[i], startPos, useFixedBase=1)
