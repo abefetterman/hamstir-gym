@@ -22,15 +22,22 @@ class MultiRoom:
     def load(self, physicsClient):
         self._p = physicsClient
         
-    def reset(self):
         i = self.np_random.randint(self.n_rooms)
         startPos = [0,0,0]
         self.room = self._p.loadURDF(self.data_dir+self.data_rooms[i], startPos, useFixedBase=1)
-        # self.room = self._p.loadSDF("/Users/abe/clones/bullet3/data/kitchens/1.sdf")
-        
+    
         self.modder.load(self.room)
         
-        # self.modder.randomize()
+    def reset(self, full_reset):
+        if self.full_reset:
+            i = self.np_random.randint(self.n_rooms)
+            startPos = [0,0,0]
+            self.room = self._p.loadURDF(self.data_dir+self.data_rooms[i], startPos, useFixedBase=1)
+        
+            self.modder.load(self.room)
+        else:
+            self.modder.randomize()
+            
         return
         
     def active_room(self):

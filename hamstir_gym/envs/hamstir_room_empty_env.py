@@ -11,12 +11,15 @@ from hamstir_gym.camera import Camera
 class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
-    def __init__(self, render=False, step_ratio=25, dim=128, discrete=False, colors=3):
+    def __init__(self, render=False, step_ratio=25, dim=128, discrete=False, 
+                full_reset=False, colors=3):
         
         self.dim = dim
         self.vel_mult = 10.0
         self.vel_high = 1.0
         self.vel_low = 0.5
+        
+        self.full_reset = full_reset # controls whether model is reloaded on reset
         
         if discrete:
             self.action_space = spaces.Discrete(3)
@@ -62,7 +65,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         
     def _resetClient(self):
         if (self.physicsClientId>=0):
-            p.resetSimulation()
+            if self.full_reset:
+                p.resetSimulation()
             return
             
         self.ownsPhysicsClient = True
@@ -83,6 +87,9 @@ class HamstirRoomEmptyEnv(gym.Env):
             # p.configureDebugVisualizer(p.COV_ENABLE_DEPTH_BUFFER_PREVIEW,0)
             # p.configureDebugVisualizer(p.COV_ENABLE_SEGMENTATION_MARK_PREVIEW,0)
             p.startStateLogging(p.STATE_LOGGING_VIDEO_MP4, self.videoFile)
+            
+        if not self.full_reset:
+            self._loadSimulation()
     
     def _loadSimulation(self):
         p.setGravity(0,0,-9.81)
@@ -117,9 +124,10 @@ class HamstirRoomEmptyEnv(gym.Env):
     def reset(self):
         self._resetClient()
         
-        self._loadSimulation()
+        if self.full_reset:
+            self._loadSimulation()
         
-        self.multiroom.reset()
+        self.multiroom.reset(self.full_reset)
         
         self._placeRobot()
         
