@@ -25,7 +25,7 @@ def get_loss(logits, act_ph, collision_ph, n_acts=3):
         loss = -tf.reduce_mean(tf.nn.log_softmax(logit_correct))
     return loss
 
-def train(sess=None,lr=1e-2, gamma=0.99, n_iters=50, horizon=5, rollouts=10):
+def train(sess=None,lr=1e-2, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
     env = HamstirRoomEmptyEnv(render=False, dim=128, step_ratio=50, full_reset=False,
                                 discrete=True, maxSteps=horizon+2, vel_range=(0.8,1))
     obs_dim = env.observation_space.shape
@@ -49,10 +49,13 @@ def train(sess=None,lr=1e-2, gamma=0.99, n_iters=50, horizon=5, rollouts=10):
 
         for _ in range(rollouts):
             obs, rew, done, ep_rews = env.reset(), 0, False, []
-            batch_obs.append(obs.copy())
             act = np.random.randint(0,n_acts)
-            batch_acts.append(act)
             obs, rew, done, _ = env.step(act)
+            if done:
+                # somehow ended after first action, don't count this one
+                break
+            batch_obs.append(obs.copy())
+            batch_acts.append(act)
             has_collision = 0.0
             max_step = horizon
             for step in range(horizon):
