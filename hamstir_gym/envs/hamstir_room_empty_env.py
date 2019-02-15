@@ -12,12 +12,11 @@ class HamstirRoomEmptyEnv(gym.Env):
     metadata = {'render.modes': ['human', 'rgb_array']}
 
     def __init__(self, render=False, step_ratio=25, dim=128, discrete=False, 
-                full_reset=False, colors=3):
+                full_reset=True, colors=3, maxSteps=50, vel_range=(-1,1)):
         
         self.dim = dim
         self.vel_mult = 10.0
-        self.vel_high = 1.0
-        self.vel_low = 0.5
+        self.vel_low, self.vel_high = vel_range
         
         self.full_reset = full_reset # controls whether model is reloaded on reset
         
@@ -42,7 +41,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.step_ratio = step_ratio # render timesteps / step(); render tstep = 1/240 sec
         self.renderer = p.ER_BULLET_HARDWARE_OPENGL # or p.ER_TINY_RENDERER
         self.maxForce = 10
-        self.maxSteps = 50
+        self.maxSteps = maxSteps
         self.multiroom = MultiRoom()
         self.camera = Camera(dim, dim, colors)
         self.bufferWallDistance = 0.4
@@ -99,7 +98,7 @@ class HamstirRoomEmptyEnv(gym.Env):
         
         self.multiroom.load(p) 
         
-        cubeStartPos = [0,2,.2]
+        cubeStartPos = [0,2,.1]
         cubeStartAngle = self.np_random.uniform()*2*np.math.pi - np.math.pi
         cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
         self.robot = p.loadURDF(DATA_DIR+"/car.urdf", cubeStartPos, cubeStartOrientation)
@@ -108,7 +107,8 @@ class HamstirRoomEmptyEnv(gym.Env):
         self.wheel_ids = [left_wheel_id, right_wheel_id]
         
     def _placeRobot(self):
-        self.epStartPosition = [self.np_random.uniform()*12 - 6, self.np_random.uniform()*12 - 6,.2]
+        startSquareSide = 1
+        self.epStartPosition = [(self.np_random.uniform() - 0.5)*startSquareSide, (self.np_random.uniform() - 0.5)*startSquareSide,.2]
         cubeStartAngle = self.np_random.uniform()*2*np.math.pi - np.math.pi
         cubeStartOrientation = p.getQuaternionFromEuler([0,0,cubeStartAngle])
         p.resetBasePositionAndOrientation(self.robot, self.epStartPosition, cubeStartOrientation)
