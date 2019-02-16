@@ -23,6 +23,7 @@ def get_loss(logits, act_ph, collision_ph, n_acts=3):
         # `logits` high predicts NO collision
         logit_correct = logit_action * (1 - collision_ph * 2) 
         loss = -tf.reduce_mean(tf.nn.log_softmax(logit_correct))
+        tf.summary.scalar('loss', loss)
     return loss
 
 def train(sess=None,lr=1e-2, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
@@ -39,6 +40,11 @@ def train(sess=None,lr=1e-2, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
     loss = get_loss(logits, act_ph, collision_ph, n_acts)
     train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
 
+    saver = tf.train.Saver()
+    running_loss = 0
+    running_loss_horizon = 10
+    running_loss_best = float('inf')
+    
     if (sess==None):
         sess=tf.InteractiveSession()
 
@@ -72,9 +78,18 @@ def train(sess=None,lr=1e-2, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
         batch_loss, _ = sess.run([loss, train_op], feed_dict={obs_ph: np.array(batch_obs),
                                                               act_ph: np.array(batch_acts),
                                                               collision_ph: np.array(batch_collisions)})
-        print('itr: %d \t loss: %.3f \t ep_len: %.3f'%
-                (i, batch_loss, np.mean(batch_lens)))
+        
+        running_loss_count = min(i,running_loss_horizon)
+        running_loss = (running_loss * running_loss_count + batch_loss) / (running_loss_count + 1)
 
+        print('itr: %d \t loss: %.3f (%.3f) \t ep_len: %.3f'%
+                (i, batch_loss, running_loss, np.mean(batch_lens)))
+                
+        if running_loss < running_loss_best:
+            running_loss_best = running_loss
+            save_path = saver.save(sess, "/tmp/gym/model.ckpt")
+            print('New best model saved to %s' % save_path)
+        
 if __name__ == '__main__':
     try:
         with tf.Session() as sess:
