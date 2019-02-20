@@ -22,7 +22,7 @@ def get_loss(logits, act_ph, collision_ph, n_acts=3):
         # logit_correct will be high if prediction is correct
         # `logits` high predicts NO collision
         logit_correct = logit_action * (1 - collision_ph * 2) 
-        loss = -tf.reduce_mean(logit_correct)
+        loss = -tf.reduce_mean(tf.math.log_sigmoid(logit_correct))
         tf.summary.scalar('loss', loss)
     return loss
 
