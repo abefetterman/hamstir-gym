@@ -22,12 +22,12 @@ def get_loss(logits, act_ph, collision_ph, n_acts=3):
         # logit_correct will be high if prediction is correct
         # `logits` high predicts NO collision
         logit_correct = logit_action * (1 - collision_ph * 2) 
-        loss = -tf.reduce_mean(logit_correct)
+        loss = -tf.reduce_mean(tf.nn.log_softmax(logit_correct))
         tf.summary.scalar('loss', loss)
     return loss
 
-def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
-    env = HamstirRoomEmptyEnv(render=False, dim=128, step_ratio=50, full_reset=False,
+def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=500, rollouts=200):
+    env = HamstirRoomEmptyEnv(render=True, dim=128, step_ratio=50, full_reset=False,
                                 discrete=True, maxSteps=horizon+2, vel_range=(0.8,1))
     obs_dim = env.observation_space.shape
     n_acts = env.action_space.n
@@ -48,7 +48,7 @@ def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
     if (sess==None):
         sess=tf.InteractiveSession()
 
-    sess.run(tf.global_variables_initializer())
+    saver.restore(sess, "./models/model.ckpt")
 
     for i in range(n_iters):
         batch_obs, batch_acts, batch_collisions, batch_lens = [], [], [], []
@@ -65,8 +65,9 @@ def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
             has_collision = 0.0
             max_step = horizon
             for step in range(horizon):
-                act = sess.run(actions, {obs_ph: np.expand_dims(obs, 0)})[0]
-                obs, rew, done, _ = env.step(act)
+                act,log = sess.run([actions, logits], {obs_ph: np.expand_dims(obs, 0)})
+                print(log)
+                obs, rew, done, _ = env.step(act[0])
                 if done:
                     has_collision = 1.0
                     max_step = step
@@ -84,11 +85,6 @@ def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
 
         print('itr: %d \t loss: %.3f (%.3f) \t ep_len: %.3f'%
                 (i, batch_loss, running_loss, np.mean(batch_lens)))
-                
-        if running_loss < running_loss_best:
-            running_loss_best = running_loss
-            save_path = saver.save(sess, "/tmp/gym/model.ckpt")
-            print('New best model saved to %s' % save_path)
         
 if __name__ == '__main__':
     try:
