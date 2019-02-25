@@ -26,9 +26,9 @@ def get_loss(logits, act_ph, collision_ph, n_acts=3):
         tf.summary.scalar('loss', loss)
     return loss
 
-def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
+def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=4, maxEpLen=20, stepsPerEpoch=100):
     env = HamstirRoomEmptyEnv(render=False, dim=128, step_ratio=50, full_reset=False,
-                                discrete=True, maxSteps=horizon+2, vel_range=(0.8,1))
+                                discrete=True, maxSteps=maxEpLen+2, vel_range=(0.8,1))
     obs_dim = env.observation_space.shape
     n_acts = env.action_space.n
 
@@ -53,26 +53,25 @@ def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=10, rollouts=200):
     for i in range(n_iters):
         batch_obs, batch_acts, batch_collisions, batch_lens = [], [], [], []
 
-        for _ in range(rollouts):
+        while len(batch_obs) < stepsPerEpoch:
             obs, rew, done, ep_rews = env.reset(), 0, False, []
-            act = np.random.randint(0,n_acts)
-            obs, rew, done, _ = env.step(act)
-            if done:
-                # somehow ended after first action, don't count this one
-                break
-            batch_obs.append(obs.copy())
-            batch_acts.append(act)
             has_collision = 0.0
-            max_step = horizon
-            for step in range(horizon):
+            max_step = maxEpLen
+            for step in range(maxEpLen):
                 act = sess.run(actions, {obs_ph: np.expand_dims(obs, 0)})[0]
+                if step % horizon == 0:
+                    act = np.random.randint(0,n_acts)
+                    batch_obs.append(obs)
+                    batch_acts.append(act)
                 obs, rew, done, _ = env.step(act)
                 if done:
-                    has_collision = 1.0
+                    batch_collisions.append(1.0)
                     max_step = step
                     break
+                elif step % horizon == horizon - 1:
+                    batch_collisions.append(0.0)
             # print('action {} collision {}'.format(batch_acts[-1], has_collision))
-            batch_collisions.append(has_collision)
+            # batch_collisions.append(has_collision)
             batch_lens.append(max_step)
             
         batch_loss, _ = sess.run([loss, train_op], feed_dict={obs_ph: np.array(batch_obs),
