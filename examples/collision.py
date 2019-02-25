@@ -26,7 +26,7 @@ def get_loss(logits, act_ph, collision_ph, n_acts=3):
         tf.summary.scalar('loss', loss)
     return loss
 
-def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=4, maxEpLen=20, stepsPerEpoch=100):
+def train(sess=None,lr=1e-4, gamma=0.99, n_iters=2000, horizon=4, maxEpLen=40, stepsPerEpoch=200):
     env = HamstirRoomEmptyEnv(render=False, dim=128, step_ratio=50, full_reset=False,
                                 discrete=True, maxSteps=maxEpLen+2, vel_range=(0.8,1))
     obs_dim = env.observation_space.shape
@@ -38,7 +38,7 @@ def train(sess=None,lr=1e-3, gamma=0.99, n_iters=500, horizon=4, maxEpLen=20, st
     collision_ph = tf.placeholder(shape=(None,), dtype=tf.float32)
     act_ph = tf.placeholder(shape=(None,), dtype=tf.int32)
     loss = get_loss(logits, act_ph, collision_ph, n_acts)
-    train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
+    train_op = tf.train.MomentumOptimizer(learning_rate=lr,momentum=0.9,use_nesterov=True).minimize(loss)
 
     saver = tf.train.Saver()
     running_loss = 0
